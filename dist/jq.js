@@ -9,20 +9,303 @@
   (global = global || self, global.JQ = factory());
 }(this, function () { 'use strict';
 
-  !function () {
-    try {
-      return new MouseEvent("test")
-    } catch (e) {
-    }
-    var e = function (e, t) {
-      t = t || {bubbles: !1, cancelable: !1};
-      var n = document.createEvent("MouseEvent");
-      return n.initMouseEvent(e, t.bubbles, t.cancelable, window, 0, t.screenX || 0, t.screenY || 0, t.clientX || 0, t.clientY || 0, t.ctrlKey || !1, t.altKey || !1, t.shiftKey || !1, t.metaKey || !1, t.button || 0, t.relatedTarget || null), n
-    };
-    e.prototype = Event.prototype, window.MouseEvent = e;
-  }();
+  !function(){try{return new MouseEvent("test")}catch(e){}var e=function(e,t){t=t||{bubbles:!1,cancelable:!1};var n=document.createEvent("MouseEvent");return n.initMouseEvent(e,t.bubbles,t.cancelable,window,0,t.screenX||0,t.screenY||0,t.clientX||0,t.clientY||0,t.ctrlKey||!1,t.altKey||!1,t.shiftKey||!1,t.metaKey||!1,t.button||0,t.relatedTarget||null),n};e.prototype=Event.prototype,window.MouseEvent=e;}();
 
   !function(){function t(t,e){e=e||{bubbles:!1,cancelable:!1,detail:void 0};var n=document.createEvent("CustomEvent");return n.initCustomEvent(t,e.bubbles,e.cancelable,e.detail),n}"function"!=typeof window.CustomEvent&&(t.prototype=window.Event.prototype,window.CustomEvent=t);}();
+
+  /**
+   * @this {Promise}
+   */
+  function finallyConstructor(callback) {
+    var constructor = this.constructor;
+    return this.then(
+      function(value) {
+        // @ts-ignore
+        return constructor.resolve(callback()).then(function() {
+          return value;
+        });
+      },
+      function(reason) {
+        // @ts-ignore
+        return constructor.resolve(callback()).then(function() {
+          // @ts-ignore
+          return constructor.reject(reason);
+        });
+      }
+    );
+  }
+
+  // Store setTimeout reference so promise-polyfill will be unaffected by
+  // other code modifying setTimeout (like sinon.useFakeTimers())
+  var setTimeoutFunc = setTimeout;
+
+  function isArray(x) {
+    return Boolean(x && typeof x.length !== 'undefined');
+  }
+
+  function noop() {}
+
+  // Polyfill for Function.prototype.bind
+  function bind(fn, thisArg) {
+    return function() {
+      fn.apply(thisArg, arguments);
+    };
+  }
+
+  /**
+   * @constructor
+   * @param {Function} fn
+   */
+  function Promise$1(fn) {
+    if (!(this instanceof Promise$1))
+      { throw new TypeError('Promises must be constructed via new'); }
+    if (typeof fn !== 'function') { throw new TypeError('not a function'); }
+    /** @type {!number} */
+    this._state = 0;
+    /** @type {!boolean} */
+    this._handled = false;
+    /** @type {Promise|undefined} */
+    this._value = undefined;
+    /** @type {!Array<!Function>} */
+    this._deferreds = [];
+
+    doResolve(fn, this);
+  }
+
+  function handle(self, deferred) {
+    while (self._state === 3) {
+      self = self._value;
+    }
+    if (self._state === 0) {
+      self._deferreds.push(deferred);
+      return;
+    }
+    self._handled = true;
+    Promise$1._immediateFn(function() {
+      var cb = self._state === 1 ? deferred.onFulfilled : deferred.onRejected;
+      if (cb === null) {
+        (self._state === 1 ? resolve : reject)(deferred.promise, self._value);
+        return;
+      }
+      var ret;
+      try {
+        ret = cb(self._value);
+      } catch (e) {
+        reject(deferred.promise, e);
+        return;
+      }
+      resolve(deferred.promise, ret);
+    });
+  }
+
+  function resolve(self, newValue) {
+    try {
+      // Promise Resolution Procedure: https://github.com/promises-aplus/promises-spec#the-promise-resolution-procedure
+      if (newValue === self)
+        { throw new TypeError('A promise cannot be resolved with itself.'); }
+      if (
+        newValue &&
+        (typeof newValue === 'object' || typeof newValue === 'function')
+      ) {
+        var then = newValue.then;
+        if (newValue instanceof Promise$1) {
+          self._state = 3;
+          self._value = newValue;
+          finale(self);
+          return;
+        } else if (typeof then === 'function') {
+          doResolve(bind(then, newValue), self);
+          return;
+        }
+      }
+      self._state = 1;
+      self._value = newValue;
+      finale(self);
+    } catch (e) {
+      reject(self, e);
+    }
+  }
+
+  function reject(self, newValue) {
+    self._state = 2;
+    self._value = newValue;
+    finale(self);
+  }
+
+  function finale(self) {
+    if (self._state === 2 && self._deferreds.length === 0) {
+      Promise$1._immediateFn(function() {
+        if (!self._handled) {
+          Promise$1._unhandledRejectionFn(self._value);
+        }
+      });
+    }
+
+    for (var i = 0, len = self._deferreds.length; i < len; i++) {
+      handle(self, self._deferreds[i]);
+    }
+    self._deferreds = null;
+  }
+
+  /**
+   * @constructor
+   */
+  function Handler(onFulfilled, onRejected, promise) {
+    this.onFulfilled = typeof onFulfilled === 'function' ? onFulfilled : null;
+    this.onRejected = typeof onRejected === 'function' ? onRejected : null;
+    this.promise = promise;
+  }
+
+  /**
+   * Take a potentially misbehaving resolver function and make sure
+   * onFulfilled and onRejected are only called once.
+   *
+   * Makes no guarantees about asynchrony.
+   */
+  function doResolve(fn, self) {
+    var done = false;
+    try {
+      fn(
+        function(value) {
+          if (done) { return; }
+          done = true;
+          resolve(self, value);
+        },
+        function(reason) {
+          if (done) { return; }
+          done = true;
+          reject(self, reason);
+        }
+      );
+    } catch (ex) {
+      if (done) { return; }
+      done = true;
+      reject(self, ex);
+    }
+  }
+
+  Promise$1.prototype['catch'] = function(onRejected) {
+    return this.then(null, onRejected);
+  };
+
+  Promise$1.prototype.then = function(onFulfilled, onRejected) {
+    // @ts-ignore
+    var prom = new this.constructor(noop);
+
+    handle(this, new Handler(onFulfilled, onRejected, prom));
+    return prom;
+  };
+
+  Promise$1.prototype['finally'] = finallyConstructor;
+
+  Promise$1.all = function(arr) {
+    return new Promise$1(function(resolve, reject) {
+      if (!isArray(arr)) {
+        return reject(new TypeError('Promise.all accepts an array'));
+      }
+
+      var args = Array.prototype.slice.call(arr);
+      if (args.length === 0) { return resolve([]); }
+      var remaining = args.length;
+
+      function res(i, val) {
+        try {
+          if (val && (typeof val === 'object' || typeof val === 'function')) {
+            var then = val.then;
+            if (typeof then === 'function') {
+              then.call(
+                val,
+                function(val) {
+                  res(i, val);
+                },
+                reject
+              );
+              return;
+            }
+          }
+          args[i] = val;
+          if (--remaining === 0) {
+            resolve(args);
+          }
+        } catch (ex) {
+          reject(ex);
+        }
+      }
+
+      for (var i = 0; i < args.length; i++) {
+        res(i, args[i]);
+      }
+    });
+  };
+
+  Promise$1.resolve = function(value) {
+    if (value && typeof value === 'object' && value.constructor === Promise$1) {
+      return value;
+    }
+
+    return new Promise$1(function(resolve) {
+      resolve(value);
+    });
+  };
+
+  Promise$1.reject = function(value) {
+    return new Promise$1(function(resolve, reject) {
+      reject(value);
+    });
+  };
+
+  Promise$1.race = function(arr) {
+    return new Promise$1(function(resolve, reject) {
+      if (!isArray(arr)) {
+        return reject(new TypeError('Promise.race accepts an array'));
+      }
+
+      for (var i = 0, len = arr.length; i < len; i++) {
+        Promise$1.resolve(arr[i]).then(resolve, reject);
+      }
+    });
+  };
+
+  // Use polyfill for setImmediate for performance gains
+  Promise$1._immediateFn =
+    // @ts-ignore
+    (typeof setImmediate === 'function' &&
+      function(fn) {
+        // @ts-ignore
+        setImmediate(fn);
+      }) ||
+    function(fn) {
+      setTimeoutFunc(fn, 0);
+    };
+
+  Promise$1._unhandledRejectionFn = function _unhandledRejectionFn(err) {
+    if (typeof console !== 'undefined' && console) {
+      console.warn('Possible Unhandled Promise Rejection:', err); // eslint-disable-line no-console
+    }
+  };
+
+  /** @suppress {undefinedVars} */
+  var globalNS = (function() {
+    // the only reliable means to get the global object is
+    // `Function('return this')()`
+    // However, this causes CSP violations in Chrome apps.
+    if (typeof self !== 'undefined') {
+      return self;
+    }
+    if (typeof window !== 'undefined') {
+      return window;
+    }
+    if (typeof global !== 'undefined') {
+      return global;
+    }
+    throw new Error('unable to locate global object');
+  })();
+
+  if (!('Promise' in globalNS)) {
+    globalNS['Promise'] = Promise$1;
+  } else if (!globalNS.Promise.prototype['finally']) {
+    globalNS.Promise.prototype['finally'] = finallyConstructor;
+  }
 
   var JQ = function JQ(arr) {
     var self = this;
@@ -1676,8 +1959,6 @@
     });
   };
 
-  // import 'mdn-polyfills/MouseEvent';
-
   /**
    * 触发一个事件
    * @param eventName
@@ -1751,7 +2032,25 @@
     return args.join('&');
   }
 
+  // import 'promise-polyfill/src/polyfill';
+
   var jsonpID = 0;
+
+  // 回调函数
+  var ajaxCallbacks = {
+    beforeSend: 'beforeSend',
+    success: 'success',
+    error: 'error',
+    complete: 'complete',
+  };
+
+  // 回调函数名
+  var callbackNames = [
+    ajaxCallbacks.beforeSend,
+    ajaxCallbacks.success,
+    ajaxCallbacks.error,
+    ajaxCallbacks.complete,
+    'statusCode' ];
 
   /**
    * 判断此请求方法是否通过查询字符串提交参数
@@ -1777,59 +2076,35 @@
    * @param options
    */
   function ajax(options) {
-  // 配置参数
+    // 配置参数
     var defaults = {
-      // 请求方式
-      method: 'GET',
-      // 请求的数据，查询字符串或对象
-      data: false,
-      // 是否把数据转换为查询字符串发送，为 false 时不进行自动转换。
-      processData: true,
-      // 是否为异步请求
-      async: true,
-      // 是否从缓存中读取，只对 GET/HEAD 请求有效，dataType 为 jsonp 时为 false
-      cache: true,
-      // HTTP 访问认证的用户名
-      username: '',
-      // HTTP 访问认证的密码
-      password: '',
-      // 一个键值对，随着请求一起发送
-      headers: {},
-      // 设置 XHR 对象
-      xhrFields: {},
-      // 一个 HTTP 代码和函数的对象
-      statusCode: {},
-      // 预期服务器返回的数据类型 text、json、jsonp
-      dataType: 'text',
-      // jsonp 请求的回调函数名称
-      jsonp: 'callback',
-      // （string 或 Function）使用指定的回调函数名代替自动生成的回调函数名
-      jsonpCallback: function () {
+      method: 'GET', // 请求方式
+      data: false, // 请求的数据，查询字符串或对象
+      processData: true, // 是否把数据转换为查询字符串发送，为 false 时不进行自动转换。
+      async: true, // 是否为异步请求
+      cache: true, // 是否从缓存中读取，只对 GET/HEAD 请求有效，dataType 为 jsonp 时为 false
+      username: '', // HTTP 访问认证的用户名
+      password: '', // HTTP 访问认证的密码
+      headers: {}, // 一个键值对，随着请求一起发送
+      xhrFields: {}, // 设置 XHR 对象
+      statusCode: {}, // 一个 HTTP 代码和函数的对象
+      dataType: 'text', // 预期服务器返回的数据类型 text、json、jsonp
+      timeout: 0, // 设置请求超时时间（毫秒）
+      global: true, // 是否在 document 上触发全局 ajax 事件
+      contentType: 'application/x-www-form-urlencoded', // 发送信息至服务器时内容编码类型
+      jsonp: 'callback', // jsonp 请求的回调函数名称
+      jsonpCallback: function () { // （string 或 Function）使用指定的回调函数名代替自动生成的回调函数名
         jsonpID += 1;
 
         return ("mduijsonp_" + (Date.now()) + "_" + jsonpID);
       },
-      // 发送信息至服务器时内容编码类型
-      contentType: 'application/x-www-form-urlencoded',
-      // 设置请求超时时间（毫秒）
-      timeout: 0,
-      // 是否在 document 上触发全局 ajax 事件
-      global: true,
-      // beforeSend:    function (XMLHttpRequest) 请求发送前执行，返回 false 可取消本次 ajax 请求
-      // success:       function (data, textStatus, XMLHttpRequest) 请求成功时调用
-      // error:         function (XMLHttpRequest, textStatus) 请求失败时调用
-      // statusCode:    {404: function ()}
-      //                200-299之间的状态码表示成功，参数和 success 回调一样；其他状态码表示失败，参数和 error 回调一样
-      // complete:      function (XMLHttpRequest, textStatus) 请求完成后回调函数 (请求成功或失败之后均调用)
+      // beforeSend:  function (XMLHttpRequest) 请求发送前执行，返回 false 可取消本次 ajax 请求
+      // success:     function (data, statusText, XMLHttpRequest) 请求成功时调用
+      // error:       function (XMLHttpRequest, statusText) 请求失败时调用
+      // statusCode:  {404: function ()}
+      //              200-299之间的状态码表示成功，参数和 success 回调一样；其他状态码表示失败，参数和 error 回调一样
+      // complete:    function (XMLHttpRequest, statusText) 请求完成后回调函数 (请求成功或失败之后均调用)
     };
-
-    // 回调函数
-    var callbacks = [
-      'beforeSend',
-      'success',
-      'error',
-      'statusCode',
-      'complete' ];
 
     // 是否已取消请求
     var isCanceled = false;
@@ -1842,7 +2117,7 @@
 
     // 合并全局参数到默认参数，全局回调函数不覆盖
     each(globals, function (key, value) {
-      if (callbacks.indexOf(key) < 0) {
+      if (callbackNames.indexOf(key) < 0) {
         defaults[key] = value;
       }
     });
@@ -1885,7 +2160,7 @@
         }
 
         // beforeSend 回调返回 false 时取消 ajax 请求
-        if (callback === 'beforeSend' && (result1 === false || result2 === false)) {
+        if (callback === ajaxCallbacks.beforeSend && (result1 === false || result2 === false)) {
           isCanceled = true;
         }
       }
@@ -1901,15 +2176,14 @@
 
     // 需要发送的数据
     // GET/HEAD 请求和 processData 为 true 时，转换为查询字符串格式，特殊格式不转换
-    var sendData;
+    var sendData = options.data;
     if (
       (isQueryStringData(method) || options.processData)
       && options.data
+      && !isString(options.data)
       && [ArrayBuffer, Blob, Document, FormData].indexOf(options.data.constructor) < 0
     ) {
-      sendData = isString(options.data) ? options.data : param(options.data);
-    } else {
-      sendData = options.data;
+      sendData = param(options.data);
     }
 
     // 对于 GET、HEAD 类型的请求，把 data 数据添加到 URL 中
@@ -1919,243 +2193,273 @@
       sendData = null;
     }
 
-    // JSONP
-    if (options.dataType === 'jsonp') {
-      // URL 中添加自动生成的回调函数名
-      var callbackName = isFunction(options.jsonpCallback)
-        ? options.jsonpCallback()
-        : options.jsonpCallback;
-      var requestUrl = appendQuery(options.url, ((options.jsonp) + "=" + callbackName));
+    // JSONP 请求
+    function JSONP() {
+      return new Promise(function (resolve, reject) {
+        // URL 中添加自动生成的回调函数名
+        var callbackName = isFunction(options.jsonpCallback)
+          ? options.jsonpCallback()
+          : options.jsonpCallback;
+        var requestUrl = appendQuery(options.url, ((options.jsonp) + "=" + callbackName));
 
-      eventParams.options = options;
+        eventParams.options = options;
 
-      triggerEvent(ajaxEvents.ajaxStart, eventParams);
-      triggerCallback('beforeSend', null);
+        triggerEvent(ajaxEvents.ajaxStart, eventParams);
+        triggerCallback(ajaxCallbacks.beforeSend, null);
 
-      if (isCanceled) {
-        return undefined;
-      }
+        if (isCanceled) {
+          reject(new Error('cancel'));
 
-      var abortTimeout;
-
-      // 创建 script
-      var script = document.createElement('script');
-      script.type = 'text/javascript';
-
-      // 创建 script 失败
-      script.onerror = function () {
-        if (abortTimeout) {
-          clearTimeout(abortTimeout);
+          return undefined;
         }
 
-        triggerEvent(ajaxEvents.ajaxError, eventParams);
-        triggerCallback('error', null, 'scripterror');
+        var abortTimeout;
 
-        triggerEvent(ajaxEvents.ajaxComplete, eventParams);
-        triggerCallback('complete', null, 'scripterror');
-      };
+        // 创建 script
+        var script = document.createElement('script');
+        script.type = 'text/javascript';
 
-      script.src = requestUrl;
+        // 创建 script 失败
+        script.onerror = function () {
+          if (abortTimeout) {
+            clearTimeout(abortTimeout);
+          }
 
-      // 处理
-      window[callbackName] = function (data) {
-        if (abortTimeout) {
-          clearTimeout(abortTimeout);
-        }
-
-        eventParams.data = data;
-
-        triggerEvent(ajaxEvents.ajaxSuccess, eventParams);
-        triggerCallback('success', data, 'success', null);
-
-        $(script).remove();
-        script = null;
-        delete window[callbackName];
-      };
-
-      $('head').append(script);
-
-      if (options.timeout > 0) {
-        abortTimeout = setTimeout(function () {
-          $(script).remove();
-          script = null;
+          var statusText = 'scripterror';
 
           triggerEvent(ajaxEvents.ajaxError, eventParams);
-          triggerCallback('error', null, 'timeout');
-        }, options.timeout);
-      }
+          triggerCallback(ajaxCallbacks.error, null, statusText);
 
-      return undefined;
-    }
+          triggerEvent(ajaxEvents.ajaxComplete, eventParams);
+          triggerCallback(ajaxCallbacks.complete, null, statusText);
 
-    // GET/HEAD 请求的缓存处理
-    if (isQueryStringData(method) && !options.cache) {
-      options.url = appendQuery(options.url, ("_=" + (Date.now())));
-    }
+          reject(new Error(statusText));
+        };
 
-    // 创建 XHR
-    var xhr = new XMLHttpRequest();
+        script.src = requestUrl;
 
-    xhr.open(method, options.url, options.async, options.username, options.password);
-
-    if (
-      options.contentType
-      || (
-        sendData
-        && !isQueryStringData(method)
-        && options.contentType !== false
-      )
-    ) {
-      xhr.setRequestHeader('Content-Type', options.contentType);
-    }
-
-    // 设置 Accept
-    if (options.dataType === 'json') {
-      xhr.setRequestHeader('Accept', 'application/json, text/javascript');
-    }
-
-    // 添加 headers
-    if (options.headers) {
-      each(options.headers, function (key, value) {
-        xhr.setRequestHeader(key, value);
-      });
-    }
-
-    // 检查是否是跨域请求
-    if (options.crossDomain === undefined) {
-      options.crossDomain = /^([\w-]+:)?\/\/([^/]+)/.test(options.url)
-        && RegExp.$2 !== window.location.host;
-    }
-
-    if (!options.crossDomain) {
-      xhr.setRequestHeader('X-Requested-With', 'XMLHttpRequest');
-    }
-
-    if (options.xhrFields) {
-      each(options.xhrFields, function (key, value) {
-        xhr[key] = value;
-      });
-    }
-
-    eventParams.xhr = xhr;
-    eventParams.options = options;
-
-    var xhrTimeout;
-
-    xhr.onload = function () {
-      if (xhrTimeout) {
-        clearTimeout(xhrTimeout);
-      }
-
-      // 包含成功或错误代码的字符串
-      var textStatus;
-
-      // AJAX 返回的 HTTP 响应码是否表示成功
-      var isHttpStatusSuccess = (xhr.status >= 200 && xhr.status < 300) || xhr.status === 0;
-
-      var responseData;
-
-      if (isHttpStatusSuccess) {
-        if (xhr.status === 204 || method === 'HEAD') {
-          textStatus = 'nocontent';
-        } else if (xhr.status === 304) {
-          textStatus = 'notmodified';
-        } else {
-          textStatus = 'success';
-        }
-
-        if (options.dataType === 'json') {
-          try {
-            responseData = JSON.parse(xhr.responseText);
-            eventParams.data = responseData;
-          } catch (err) {
-            textStatus = 'parsererror';
-
-            triggerEvent(ajaxEvents.ajaxError, eventParams);
-            triggerCallback('error', xhr, textStatus);
+        // 处理
+        window[callbackName] = function (data) {
+          if (abortTimeout) {
+            clearTimeout(abortTimeout);
           }
 
-          if (textStatus !== 'parsererror') {
-            triggerEvent(ajaxEvents.ajaxSuccess, eventParams);
-            triggerCallback('success', responseData, textStatus, xhr);
-          }
-        } else {
-          responseData = xhr.responseType === 'text' || xhr.responseType === ''
-            ? xhr.responseText
-            : xhr.response;
-          eventParams.data = responseData;
+          eventParams.data = data;
 
           triggerEvent(ajaxEvents.ajaxSuccess, eventParams);
-          triggerCallback('success', responseData, textStatus, xhr);
-        }
-      } else {
-        textStatus = 'error';
+          triggerCallback(ajaxCallbacks.success, data, 'success', null);
 
-        triggerEvent(ajaxEvents.ajaxError, eventParams);
-        triggerCallback('error', xhr, textStatus);
-      }
+          $(script).remove();
+          script = null;
+          delete window[callbackName];
 
-      // statusCode
-      each([globals.statusCode, options.statusCode], function (i, func) {
-        if (func && func[xhr.status]) {
-          if (isHttpStatusSuccess) {
-            func[xhr.status](responseData, textStatus, xhr);
-          } else {
-            func[xhr.status](xhr, textStatus);
-          }
+          resolve(data);
+        };
+
+        $('head').append(script);
+
+        if (options.timeout > 0) {
+          abortTimeout = setTimeout(function () {
+            $(script).remove();
+            script = null;
+
+            var statusText = 'timeout';
+
+            triggerEvent(ajaxEvents.ajaxError, eventParams);
+            triggerCallback(ajaxCallbacks.error, null, statusText);
+
+            reject(new Error(statusText));
+          }, options.timeout);
         }
+
+        return undefined;
       });
-
-      triggerEvent(ajaxEvents.ajaxComplete, eventParams);
-      triggerCallback('complete', xhr, textStatus);
-    };
-
-    xhr.onerror = function () {
-      if (xhrTimeout) {
-        clearTimeout(xhrTimeout);
-      }
-
-      triggerEvent(ajaxEvents.ajaxError, eventParams);
-      triggerCallback('error', xhr, xhr.statusText);
-
-      triggerEvent(ajaxEvents.ajaxComplete, eventParams);
-      triggerCallback('complete', xhr, 'error');
-    };
-
-    xhr.onabort = function () {
-      var textStatus = 'abort';
-
-      if (xhrTimeout) {
-        textStatus = 'timeout';
-        clearTimeout(xhrTimeout);
-      }
-
-      triggerEvent(ajaxEvents.ajaxError, eventParams);
-      triggerCallback('error', xhr, textStatus);
-
-      triggerEvent(ajaxEvents.ajaxComplete, eventParams);
-      triggerCallback('complete', xhr, textStatus);
-    };
-
-    // ajax start 回调
-    triggerEvent(ajaxEvents.ajaxStart, eventParams);
-    triggerCallback('beforeSend', xhr);
-
-    if (isCanceled) {
-      return xhr;
     }
 
-    // Timeout
-    if (options.timeout > 0) {
-      xhrTimeout = setTimeout(function () {
-        xhr.abort();
-      }, options.timeout);
+    // XMLHttpRequest 请求
+    function XHR() {
+      return new Promise(function (resolve, reject) {
+        // GET/HEAD 请求的缓存处理
+        if (isQueryStringData(method) && !options.cache) {
+          options.url = appendQuery(options.url, ("_=" + (Date.now())));
+        }
+
+        // 创建 XHR
+        var xhr = new XMLHttpRequest();
+
+        xhr.open(method, options.url, options.async, options.username, options.password);
+
+        if (
+          options.contentType
+          || (sendData && !isQueryStringData(method) && options.contentType !== false)
+        ) {
+          xhr.setRequestHeader('Content-Type', options.contentType);
+        }
+
+        // 设置 Accept
+        if (options.dataType === 'json') {
+          xhr.setRequestHeader('Accept', 'application/json, text/javascript');
+        }
+
+        // 添加 headers
+        if (options.headers) {
+          each(options.headers, function (key, value) {
+            xhr.setRequestHeader(key, value);
+          });
+        }
+
+        // 检查是否是跨域请求
+        if (options.crossDomain === undefined) {
+          options.crossDomain = /^([\w-]+:)?\/\/([^/]+)/.test(options.url) && RegExp.$2 !== window.location.host;
+        }
+
+        if (!options.crossDomain) {
+          xhr.setRequestHeader('X-Requested-With', 'XMLHttpRequest');
+        }
+
+        if (options.xhrFields) {
+          each(options.xhrFields, function (key, value) {
+            xhr[key] = value;
+          });
+        }
+
+        eventParams.xhr = xhr;
+        eventParams.options = options;
+
+        var xhrTimeout;
+
+        xhr.onload = function () {
+          if (xhrTimeout) {
+            clearTimeout(xhrTimeout);
+          }
+
+          // 包含成功或错误代码的字符串
+          var statusText;
+
+          // AJAX 返回的 HTTP 响应码是否表示成功
+          var isHttpStatusSuccess = (xhr.status >= 200 && xhr.status < 300) || xhr.status === 0;
+
+          var responseData;
+
+          if (isHttpStatusSuccess) {
+            if (xhr.status === 204 || method === 'HEAD') {
+              statusText = 'nocontent';
+            } else if (xhr.status === 304) {
+              statusText = 'notmodified';
+            } else {
+              statusText = 'success';
+            }
+
+            if (options.dataType === 'json') {
+              try {
+                responseData = JSON.parse(xhr.responseText);
+                eventParams.data = responseData;
+              } catch (err) {
+                statusText = 'parsererror';
+
+                triggerEvent(ajaxEvents.ajaxError, eventParams);
+                triggerCallback(ajaxCallbacks.error, xhr, statusText);
+
+                reject(new Error(statusText));
+              }
+
+              if (statusText !== 'parsererror') {
+                triggerEvent(ajaxEvents.ajaxSuccess, eventParams);
+                triggerCallback(ajaxCallbacks.success, responseData, statusText, xhr);
+
+                resolve(responseData);
+              }
+            } else {
+              responseData = xhr.responseType === 'text' || xhr.responseType === ''
+                ? xhr.responseText
+                : xhr.response;
+              eventParams.data = responseData;
+
+              triggerEvent(ajaxEvents.ajaxSuccess, eventParams);
+              triggerCallback(ajaxCallbacks.success, responseData, statusText, xhr);
+
+              resolve(responseData);
+            }
+          } else {
+            statusText = 'error';
+
+            triggerEvent(ajaxEvents.ajaxError, eventParams);
+            triggerCallback(ajaxCallbacks.error, xhr, statusText);
+
+            reject(new Error(statusText));
+          }
+
+          // statusCode
+          each([globals.statusCode, options.statusCode], function (i, func) {
+            if (func && func[xhr.status]) {
+              if (isHttpStatusSuccess) {
+                func[xhr.status](responseData, statusText, xhr);
+              } else {
+                func[xhr.status](xhr, statusText);
+              }
+            }
+          });
+
+          triggerEvent(ajaxEvents.ajaxComplete, eventParams);
+          triggerCallback(ajaxCallbacks.complete, xhr, statusText);
+        };
+
+        xhr.onerror = function () {
+          if (xhrTimeout) {
+            clearTimeout(xhrTimeout);
+          }
+
+          triggerEvent(ajaxEvents.ajaxError, eventParams);
+          triggerCallback(ajaxCallbacks.error, xhr, xhr.statusText);
+
+          triggerEvent(ajaxEvents.ajaxComplete, eventParams);
+          triggerCallback(ajaxCallbacks.complete, xhr, 'error');
+
+          reject(new Error(xhr.statusText));
+        };
+
+        xhr.onabort = function () {
+          var statusText = 'abort';
+
+          if (xhrTimeout) {
+            statusText = 'timeout';
+            clearTimeout(xhrTimeout);
+          }
+
+          triggerEvent(ajaxEvents.ajaxError, eventParams);
+          triggerCallback(ajaxCallbacks.error, xhr, statusText);
+
+          triggerEvent(ajaxEvents.ajaxComplete, eventParams);
+          triggerCallback(ajaxCallbacks.complete, xhr, statusText);
+
+          reject(new Error(statusText));
+        };
+
+        // ajax start 回调
+        triggerEvent(ajaxEvents.ajaxStart, eventParams);
+        triggerCallback(ajaxCallbacks.beforeSend, xhr);
+
+        if (isCanceled) {
+          reject(new Error('cancel'));
+
+          return undefined;
+        }
+
+        // Timeout
+        if (options.timeout > 0) {
+          xhrTimeout = setTimeout(function () {
+            xhr.abort();
+          }, options.timeout);
+        }
+
+        // 发送 XHR
+        xhr.send(sendData);
+
+        return undefined;
+      });
     }
 
-    // 发送 XHR
-    xhr.send(sendData);
-
-    return xhr;
+    return options.dataType === 'jsonp' ? JSONP() : XHR();
   }
 
   /**
