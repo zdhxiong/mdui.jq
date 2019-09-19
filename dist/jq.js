@@ -473,7 +473,9 @@
       objectN.unshift(object1);
       each(objectN, function (_, object) {
           each(object, function (prop, value) {
-              target[prop] = value;
+              if (!isUndefined(value)) {
+                  target[prop] = value;
+              }
           });
       });
       return target;
@@ -676,7 +678,7 @@
               'complete',
               'statusCode' ];
           // @ts-ignore
-          if (callbacks.indexOf(key) < 0) {
+          if (callbacks.indexOf(key) < 0 && !isUndefined(value)) {
               defaults[key] = value;
           }
       });
@@ -860,7 +862,10 @@
               // 添加 headers
               if (headers) {
                   each(headers, function (key, value) {
-                      xhr.setRequestHeader(key, value);
+                      // undefined 值不发送，string 和 null 需要发送
+                      if (!isUndefined(value)) {
+                          xhr.setRequestHeader(key, value + ''); // 把 null 转换成字符串
+                      }
                   });
               }
               // 检查是否是跨域请求，跨域请求时不添加 X-Requested-With
