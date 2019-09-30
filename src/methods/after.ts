@@ -15,7 +15,11 @@ $('<p>I would like to say: </p>').after('<b>Hello</b>')
 // [ <p>I would like to say: </p><b>Hello</b> ]
 ```
      */
-    after(selector: JQSelector): this;
+    after(
+      selector:
+        | JQSelector
+        | ((this: HTMLElement, index: number, html: string) => JQSelector),
+    ): this;
   }
 }
 

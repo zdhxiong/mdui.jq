@@ -2,7 +2,7 @@ import $ from '../$';
 import each from '../functions/each';
 import './each';
 import JQElement from '../types/JQElement';
-import { isElement } from '../utils';
+import { isElement, isFunction } from '../utils';
 import { JQ } from '../JQ';
 
 declare module '../JQ' {
@@ -19,24 +19,41 @@ $('p').addClass('item')
 $('p').addClass('item1 item2')
 ```
      */
-    addClass(className: string): this;
+    addClass(
+      className:
+        | string
+        | ((
+            this: HTMLElement,
+            index: number,
+            currentClassName: string,
+          ) => string),
+    ): this;
   }
 }
 
 type classListMethod = 'add' | 'remove' | 'toggle';
 
 each(['add', 'remove', 'toggle'], (_, name: classListMethod) => {
-  $.fn[`${name}Class`] = function(this: JQ, className: string): JQ {
-    if (!className) {
-      return this;
-    }
-
-    const classes = className.split(' ');
-
-    return this.each((_, element) => {
+  $.fn[`${name}Class`] = function(
+    this: JQ,
+    className:
+      | string
+      | ((
+          this: HTMLElement,
+          index: number,
+          currentClassName: string,
+        ) => string),
+  ): JQ {
+    return this.each((i, element) => {
       if (!isElement(element)) {
         return;
       }
+
+      if (isFunction(className)) {
+        className = className.call(element, i, element.classList.value);
+      }
+
+      const classes = className.split(' ').filter(name => name);
 
       each(classes, (_, cls) => {
         element.classList[name](cls);

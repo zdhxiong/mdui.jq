@@ -22,7 +22,7 @@ $('.box').closest('.parent')
 
 $.fn.closest = function(this: JQ, selector: JQSelector): JQ {
   if (this.is(selector)) {
-    return new JQ();
+    return this;
   }
 
   return this.parents(selector).eq(0);

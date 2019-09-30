@@ -422,10 +422,6 @@
           if (selector instanceof Node || isWindow(selector)) {
               return new JQ([selector]);
           }
-          // NodeList
-          if (selector instanceof NodeList) {
-              return new JQ(selector);
-          }
           // String
           if (isString(selector)) {
               var html = selector.trim();
@@ -459,6 +455,10 @@
                   return new JQ(elements);
               }
           }
+          // NodeList, Array
+          else if (isArrayLike(selector)) {
+              return new JQ(selector);
+          }
           return new JQ();
       };
       $.fn = JQ.prototype;
@@ -482,8 +482,8 @@
   }
 
   /**
-   * 将数组或对象序列化，序列化后的字符串可作为 URL 查询字符串使用
-   * @param obj 数组或对象
+   * 将对象序列化，序列化后的字符串可作为 URL 查询字符串使用
+   * @param obj 对象
    * @example
   ```js
   param( { width:1680, height:1050 } );
@@ -517,11 +517,11 @@
               });
           }
           else {
-              if (value !== null && value !== '') {
-                  keyTmp = "=" + (encodeURIComponent(value));
+              if (isNull(value) || isUndefined(value) || value === '') {
+                  keyTmp = '=';
               }
               else {
-                  keyTmp = '';
+                  keyTmp = "=" + (encodeURIComponent(value));
               }
               args.push(encodeURIComponent(key) + keyTmp);
           }
@@ -1023,7 +1023,8 @@
    */
   function contains(parent, child) {
       if (isUndefined(child)) {
-          return document.documentElement.contains(parent);
+          child = parent;
+          parent = document.documentElement;
       }
       return parent !== child && parent.contains(child);
   }
@@ -1049,6 +1050,8 @@
       });
   }
   function data(element, key, value) {
+      var obj;
+
       // 根据键值对设置值
       // data(element, { 'key' : 'value' })
       if (isObjectLike(key)) {
@@ -1058,7 +1061,7 @@
       // 根据 key、value 设置值
       // data(element, 'key', 'value')
       if (!isUndefined(value)) {
-          setObjToElement(element, { key: value });
+          setObjToElement(element, ( obj = {}, obj[key] = value, obj ));
           return value;
       }
       // 获取所有值
@@ -1207,14 +1210,14 @@
 
   each(['add', 'remove', 'toggle'], function (_, name) {
       $.fn[(name + "Class")] = function (className) {
-          if (!className) {
-              return this;
-          }
-          var classes = className.split(' ');
-          return this.each(function (_, element) {
+          return this.each(function (i, element) {
               if (!isElement(element)) {
                   return;
               }
+              if (isFunction(className)) {
+                  className = className.call(element, i, element.classList.value);
+              }
+              var classes = className.split(' ').filter(function (name) { return name; });
               each(classes, function (_, cls) {
                   element.classList[name](cls);
               });
@@ -1606,7 +1609,7 @@
 
   $.fn.closest = function (selector) {
       if (this.is(selector)) {
-          return new JQ();
+          return this;
       }
       return this.parents(selector).eq(0);
   };
@@ -1644,34 +1647,21 @@
   };
 
   $.fn.extend = function (obj) {
-      var this$1 = this;
-
       each(obj, function (prop, value) {
           // 在 JQ 对象上扩展方法时，需要自己添加 typescript 的类型定义
-          // @ts-ignore
-          this$1[prop] = value;
+          $.fn[prop] = value;
       });
       return this;
   };
 
   $.fn.index = function (selector) {
-      if (!selector) {
-          // 获取当前对象的第一个元素在同辈元素中的位置
-          return this.eq(0)
-              .parent()
-              .children()
-              .get()
-              .indexOf(this[0]);
-      }
-      if (isString(selector)) {
-          // 返回当前对象的第一个元素在指定选择器对应的元素中的位置
-          return ($(selector)
+      if (!selector || isString(selector)) {
+          return (selector ? $(selector) : this)
               .eq(0)
               .parent()
               .children()
               .get()
-              // @ts-ignore
-              .indexOf(this[0]));
+              .indexOf(this[0]);
       }
       // 返回指定元素在当前 JQ 对象中的位置
       return this.get().indexOf($(selector).get(0));
@@ -1824,7 +1814,7 @@
 
   $.fn.not = function (selector) {
       var $excludes = this.filter(selector);
-      return this.map(function (index, element) { return $excludes.index(element) > -1 ? undefined : element; });
+      return this.map(function (_, element) { return $excludes.index(element) > -1 ? undefined : element; });
   };
 
   $.fn.offset = function () {
@@ -1885,16 +1875,16 @@
               parentOffset = $offsetParent.offset();
           }
           parentOffset.top =
-              parentOffset.top + parseFloat($offsetParent.css('borderTopWidth') || '');
+              parentOffset.top + parseFloat($offsetParent.css('borderTopWidth') || '0');
           parentOffset.left =
               parentOffset.left +
-                  parseFloat($offsetParent.css('borderLeftWidth') || '');
+                  parseFloat($offsetParent.css('borderLeftWidth') || '0');
       }
       return {
-          top: offset.top - parentOffset.top - parseFloat(this.css('marginTop') || ''),
+          top: offset.top - parentOffset.top - parseFloat(this.css('marginTop') || '0'),
           left: offset.left -
               parentOffset.left -
-              parseFloat(this.css('marginLeft') || ''),
+              parseFloat(this.css('marginLeft') || '0'),
           width: offset.width,
           height: offset.height,
       };

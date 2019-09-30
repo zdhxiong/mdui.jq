@@ -116,10 +116,6 @@ function get$() {
         if (selector instanceof Node || isWindow(selector)) {
             return new JQ([selector]);
         }
-        // NodeList
-        if (selector instanceof NodeList) {
-            return new JQ(selector);
-        }
         // String
         if (isString(selector)) {
             const html = selector.trim();
@@ -153,6 +149,10 @@ function get$() {
                 return new JQ(elements);
             }
         }
+        // NodeList, Array
+        else if (isArrayLike(selector)) {
+            return new JQ(selector);
+        }
         return new JQ();
     };
     $.fn = JQ.prototype;
@@ -173,8 +173,8 @@ function extend(target, object1, ...objectN) {
 }
 
 /**
- * 将数组或对象序列化，序列化后的字符串可作为 URL 查询字符串使用
- * @param obj 数组或对象
+ * 将对象序列化，序列化后的字符串可作为 URL 查询字符串使用
+ * @param obj 对象
  * @example
 ```js
 param( { width:1680, height:1050 } );
@@ -208,11 +208,11 @@ function param(obj) {
             });
         }
         else {
-            if (value !== null && value !== '') {
-                keyTmp = `=${encodeURIComponent(value)}`;
+            if (isNull(value) || isUndefined(value) || value === '') {
+                keyTmp = '=';
             }
             else {
-                keyTmp = '';
+                keyTmp = `=${encodeURIComponent(value)}`;
             }
             args.push(encodeURIComponent(key) + keyTmp);
         }
@@ -710,7 +710,8 @@ contains( document.body, document.documentElement ); // false
  */
 function contains(parent, child) {
     if (isUndefined(child)) {
-        return document.documentElement.contains(parent);
+        child = parent;
+        parent = document.documentElement;
     }
     return parent !== child && parent.contains(child);
 }
@@ -745,7 +746,7 @@ function data(element, key, value) {
     // 根据 key、value 设置值
     // data(element, 'key', 'value')
     if (!isUndefined(value)) {
-        setObjToElement(element, { key: value });
+        setObjToElement(element, { [key]: value });
         return value;
     }
     // 获取所有值
@@ -890,14 +891,14 @@ $.fn.add = function (selector) {
 
 each(['add', 'remove', 'toggle'], (_, name) => {
     $.fn[`${name}Class`] = function (className) {
-        if (!className) {
-            return this;
-        }
-        const classes = className.split(' ');
-        return this.each((_, element) => {
+        return this.each((i, element) => {
             if (!isElement(element)) {
                 return;
             }
+            if (isFunction(className)) {
+                className = className.call(element, i, element.classList.value);
+            }
+            const classes = className.split(' ').filter(name => name);
             each(classes, (_, cls) => {
                 element.classList[name](cls);
             });
@@ -1279,7 +1280,7 @@ $.fn.eq = function (index) {
 
 $.fn.closest = function (selector) {
     if (this.is(selector)) {
-        return new JQ();
+        return this;
     }
     return this.parents(selector).eq(0);
 };
@@ -1319,30 +1320,19 @@ $.fn.empty = function () {
 $.fn.extend = function (obj) {
     each(obj, (prop, value) => {
         // 在 JQ 对象上扩展方法时，需要自己添加 typescript 的类型定义
-        // @ts-ignore
-        this[prop] = value;
+        $.fn[prop] = value;
     });
     return this;
 };
 
 $.fn.index = function (selector) {
-    if (!selector) {
-        // 获取当前对象的第一个元素在同辈元素中的位置
-        return this.eq(0)
-            .parent()
-            .children()
-            .get()
-            .indexOf(this[0]);
-    }
-    if (isString(selector)) {
-        // 返回当前对象的第一个元素在指定选择器对应的元素中的位置
-        return ($(selector)
+    if (!selector || isString(selector)) {
+        return (selector ? $(selector) : this)
             .eq(0)
             .parent()
             .children()
             .get()
-            // @ts-ignore
-            .indexOf(this[0]));
+            .indexOf(this[0]);
     }
     // 返回指定元素在当前 JQ 对象中的位置
     return this.get().indexOf($(selector).get(0));
@@ -1497,7 +1487,7 @@ each(['', 'All', 'Until'], (nameIndex, name) => {
 
 $.fn.not = function (selector) {
     const $excludes = this.filter(selector);
-    return this.map((index, element) => $excludes.index(element) > -1 ? undefined : element);
+    return this.map((_, element) => $excludes.index(element) > -1 ? undefined : element);
 };
 
 $.fn.offset = function () {
@@ -1558,16 +1548,16 @@ $.fn.position = function () {
             parentOffset = $offsetParent.offset();
         }
         parentOffset.top =
-            parentOffset.top + parseFloat($offsetParent.css('borderTopWidth') || '');
+            parentOffset.top + parseFloat($offsetParent.css('borderTopWidth') || '0');
         parentOffset.left =
             parentOffset.left +
-                parseFloat($offsetParent.css('borderLeftWidth') || '');
+                parseFloat($offsetParent.css('borderLeftWidth') || '0');
     }
     return {
-        top: offset.top - parentOffset.top - parseFloat(this.css('marginTop') || ''),
+        top: offset.top - parentOffset.top - parseFloat(this.css('marginTop') || '0'),
         left: offset.left -
             parentOffset.left -
-            parseFloat(this.css('marginLeft') || ''),
+            parseFloat(this.css('marginLeft') || '0'),
         width: offset.width,
         height: offset.height,
     };

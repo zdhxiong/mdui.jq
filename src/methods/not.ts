@@ -22,14 +22,23 @@ $('#select option').not(function (idx, element) {
 })
 ```
      */
-    not(selection: JQSelector): this;
+    not(
+      selection:
+        | JQSelector
+        | ((this: JQElement, index: number, element: JQElement) => boolean),
+    ): this;
   }
 }
 
-$.fn.not = function(this: JQ, selector: JQSelector): JQ {
+$.fn.not = function(
+  this: JQ,
+  selector:
+    | JQSelector
+    | ((this: JQElement, index: number, element: JQElement) => boolean),
+): JQ {
   const $excludes = this.filter(selector);
 
-  return this.map((index, element) =>
+  return this.map((_, element) =>
     $excludes.index(element) > -1 ? undefined : element,
   );
 };

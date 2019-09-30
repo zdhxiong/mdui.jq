@@ -9,8 +9,8 @@ import './offsetParent';
 interface Coordinates {
   left: number;
   top: number;
-  width?: number;
-  height?: number;
+  width: number;
+  height: number;
 }
 
 declare module '../JQ' {
@@ -35,7 +35,7 @@ $.fn.position = function(this: JQ): Coordinates | undefined {
   }
 
   let $offsetParent: JQ;
-  let parentOffset: Coordinates = {
+  let parentOffset: { left: number; top: number } = {
     left: 0,
     top: 0,
   };
@@ -52,20 +52,20 @@ $.fn.position = function(this: JQ): Coordinates | undefined {
     }
 
     parentOffset.top =
-      parentOffset.top + parseFloat($offsetParent.css('borderTopWidth') || '');
+      parentOffset.top + parseFloat($offsetParent.css('borderTopWidth') || '0');
 
     parentOffset.left =
       parentOffset.left +
-      parseFloat($offsetParent.css('borderLeftWidth') || '');
+      parseFloat($offsetParent.css('borderLeftWidth') || '0');
   }
 
   return {
     top:
-      offset.top - parentOffset.top - parseFloat(this.css('marginTop') || ''),
+      offset.top - parentOffset.top - parseFloat(this.css('marginTop') || '0'),
     left:
       offset.left -
       parentOffset.left -
-      parseFloat(this.css('marginLeft') || ''),
+      parseFloat(this.css('marginLeft') || '0'),
     width: offset.width,
     height: offset.height,
   };

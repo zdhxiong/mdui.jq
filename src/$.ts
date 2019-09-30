@@ -1,6 +1,6 @@
 import JQSelector from './types/JQSelector';
 import { JQStatic } from './interfaces/JQStatic';
-import { isFunction, isWindow, isString } from './utils';
+import { isFunction, isWindow, isString, isArrayLike } from './utils';
 import { JQ } from './JQ';
 import each from './functions/each';
 
@@ -38,11 +38,6 @@ function get$(): JQStatic {
     // Node
     if (selector instanceof Node || isWindow(selector)) {
       return new JQ([selector]);
-    }
-
-    // NodeList
-    if (selector instanceof NodeList) {
-      return new JQ(selector);
     }
 
     // String
@@ -86,6 +81,11 @@ function get$(): JQStatic {
       if (elements) {
         return new JQ(elements);
       }
+    }
+
+    // NodeList, Array
+    else if (isArrayLike(selector)) {
+      return new JQ(selector);
     }
 
     return new JQ();

@@ -86,7 +86,7 @@ function data(
   // 根据 key、value 设置值
   // data(element, 'key', 'value')
   if (!isUndefined(value)) {
-    setObjToElement(element, { key: value });
+    setObjToElement(element, { [key as string]: value });
 
     return value;
   }

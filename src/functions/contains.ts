@@ -31,7 +31,8 @@ function contains(
   child?: HTMLElement | HTMLDocument,
 ): boolean {
   if (isUndefined(child)) {
-    return document.documentElement.contains(parent);
+    child = parent;
+    parent = document.documentElement;
   }
 
   return parent !== child && parent.contains(child);
