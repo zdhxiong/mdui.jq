@@ -1,6 +1,5 @@
 import './init';
 import './unit/$';
-
 import './unit/static/ajax';
 import './unit/static/ajaxSetup';
 import './unit/static/contains';
@@ -12,7 +11,6 @@ import './unit/static/merge';
 import './unit/static/param';
 import './unit/static/removeData';
 import './unit/static/unique';
-
 import './unit/methods/add';
 import './unit/methods/addClass';
 import './unit/methods/after';

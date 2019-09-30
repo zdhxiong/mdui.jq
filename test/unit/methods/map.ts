@@ -1,6 +1,4 @@
-import $ from '../../../es/$';
-import '../../../es/methods/html';
-import '../../../es/methods/map';
+import $ from '../../jq_or_jquery';
 
 describe('.map()', function() {
   beforeEach(function() {

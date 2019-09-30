@@ -1,6 +1,4 @@
-import $ from '../../../es/$';
-import '../../../es/methods/height';
-import '../../../es/methods/html';
+import $ from '../../jq_or_jquery';
 
 describe('.height()', function() {
   beforeEach(function() {

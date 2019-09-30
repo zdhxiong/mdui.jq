@@ -1,5 +1,4 @@
-import $ from '../../../es/$';
-import '../../../es/methods/filter';
+import $ from '../../jq_or_jquery';
 
 describe('.filter()', function() {
   beforeEach(function() {

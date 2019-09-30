@@ -1,7 +1,4 @@
-import $ from '../es/$';
-import '../es/methods/empty';
-import '../es/methods/off';
-import '../es/methods/removeData';
+import $ from './jq_or_jquery';
 
 afterEach(function() {
   $('#test')

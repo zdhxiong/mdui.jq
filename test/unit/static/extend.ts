@@ -1,6 +1,4 @@
-import $ from '../../../es/$';
-import '../../../es/static/extend';
-import merge from '../../../src/functions/merge';
+import $ from '../../jq_or_jquery';
 
 describe('$.extend', function() {
   it('$.extend(obj)', function() {

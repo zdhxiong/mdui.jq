@@ -1,7 +1,4 @@
-import $ from '../../../es/$';
-import '../../../es/methods/eq';
-import '../../../es/methods/html';
-import '../../../es/methods/slice';
+import $ from '../../jq_or_jquery';
 
 describe('.slice()', function() {
   beforeEach(function() {

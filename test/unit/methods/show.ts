@@ -1,6 +1,4 @@
-import $ from '../../../es/$';
-import '../../../es/methods/html';
-import '../../../es/methods/show';
+import $ from '../../jq_or_jquery';
 
 describe('.show()', function() {
   beforeEach(function() {

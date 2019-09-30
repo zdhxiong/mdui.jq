@@ -1,6 +1,4 @@
-import $ from '../../../es/$';
-import '../../../es/methods/html';
-import '../../../es/methods/serialize';
+import $ from '../../jq_or_jquery';
 
 describe('.serialize()', function() {
   beforeEach(function() {

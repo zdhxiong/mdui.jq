@@ -1,6 +1,4 @@
-import $ from '../../../es/$';
-import '../../../es/methods/html';
-import '../../../es/methods/insertBefore';
+import $ from '../../jq_or_jquery';
 
 describe('.insertBefore()', function() {
   it('.insertBefore(JQSelector): JQ', function() {

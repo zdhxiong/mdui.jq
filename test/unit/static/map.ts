@@ -1,5 +1,4 @@
-import $ from '../../../es/$';
-import '../../../es/static/map';
+import $ from '../../jq_or_jquery';
 
 describe('$.map', function() {
   // 遍历数组

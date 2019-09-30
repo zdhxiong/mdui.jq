@@ -1,7 +1,4 @@
-import $ from '../../../es/$';
-import '../../../es/methods/html';
-import '../../../es/methods/prop';
-import '../../../es/methods/removeProp';
+import $ from '../../jq_or_jquery';
 
 describe('.removeProp()', function() {
   beforeEach(function() {

@@ -1,6 +1,4 @@
-import $ from '../../../es/$';
-import '../../../es/methods/append';
-import '../../../es/methods/html';
+import $ from '../../jq_or_jquery';
 
 describe('.append()', function() {
   // 在选中元素内部的后面添加内容

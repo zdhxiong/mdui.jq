@@ -1,5 +1,4 @@
-import $ from '../../../es/$';
-import '../../../es/static/unique';
+import $ from '../../jq_or_jquery';
 
 describe('$.unique', function() {
   it('$.unique(array1, array2)', function() {

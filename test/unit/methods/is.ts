@@ -1,6 +1,4 @@
-import $ from '../../../es/$';
-import '../../../es/methods/html';
-import '../../../es/methods/is';
+import $ from '../../jq_or_jquery';
 
 describe('.is()', function() {
   beforeEach(function() {

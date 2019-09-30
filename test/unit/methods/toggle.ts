@@ -1,6 +1,4 @@
-import $ from '../../../es/$';
-import '../../../es/methods/html';
-import '../../../es/methods/toggle';
+import $ from '../../jq_or_jquery';
 
 describe('.toggle()', function() {
   beforeEach(function() {

@@ -1,8 +1,4 @@
-import $ from '../../../es/$';
-import '../../../es/methods/clone';
-import '../../../es/methods/find';
-import '../../../es/methods/hasClass';
-import '../../../es/methods/html';
+import $ from '../../jq_or_jquery';
 
 describe('.clone()', function() {
   beforeEach(function() {

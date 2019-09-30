@@ -1,1 +1,3 @@
-describe('.innerWidth()', function() {});
+describe('.innerWidth()', function() {
+  return '';
+});

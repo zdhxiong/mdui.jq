@@ -1,6 +1,4 @@
-import $ from '../../../es/$';
-import '../../../es/methods/html';
-import '../../../es/methods/offset';
+import $ from '../../jq_or_jquery';
 
 describe('.offset()', function() {
   beforeEach(function() {

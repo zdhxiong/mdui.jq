@@ -1,5 +1,4 @@
-import $ from '../../../es/$';
-import '../../../es/static/merge';
+import $ from '../../jq_or_jquery';
 
 describe('$.merge', function() {
   it('$.merge(array1, array2)', function() {

@@ -1,6 +1,4 @@
-import $ from '../../../es/$';
-import '../../../es/methods/addClass';
-import '../../../es/methods/extend';
+import $ from '../../jq_or_jquery';
 
 describe('.extend()', function() {
   beforeEach(function() {

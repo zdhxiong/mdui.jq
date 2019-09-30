@@ -1,5 +1,4 @@
-import $ from '../../../es/$';
-import '../../../es/methods/addClass';
+import $ from '../../jq_or_jquery';
 
 describe('.addClass()', function() {
   beforeEach(function() {

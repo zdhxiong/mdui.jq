@@ -1,6 +1,4 @@
-import $ from '../../../es/$';
-import '../../../es/methods/empty';
-import '../../../es/methods/html';
+import $ from '../../jq_or_jquery';
 
 describe('.empty()', function() {
   beforeEach(function() {

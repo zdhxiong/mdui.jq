@@ -1,6 +1,4 @@
-import $ from '../../../es/$';
-import '../../../es/methods/html';
-import '../../../es/methods/serializeArray';
+import $ from '../../jq_or_jquery';
 
 describe('.serializeArray()', function() {
   beforeEach(function() {

@@ -1,6 +1,4 @@
-import $ from '../../../es/$';
-import '../../../es/methods/html';
-import '../../../es/methods/index';
+import $ from '../../jq_or_jquery';
 
 describe('.index()', function() {
   beforeEach(function() {

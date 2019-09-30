@@ -1,6 +1,4 @@
-import $ from '../../../es/$';
-import '../../../es/methods/attr';
-import '../../../es/methods/html';
+import $ from '../../jq_or_jquery';
 
 describe('.attr()', function() {
   beforeEach(function() {

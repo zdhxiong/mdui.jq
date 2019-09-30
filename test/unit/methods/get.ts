@@ -1,6 +1,4 @@
-import $ from '../../../es/$';
-import '../../../es/methods/get';
-import '../../../es/methods/html';
+import $ from '../../jq_or_jquery';
 
 describe('.get()', function() {
   this.beforeEach(function() {

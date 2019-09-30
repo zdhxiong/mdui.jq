@@ -1,10 +1,7 @@
-import $ from '../../../es/$';
-import '../../../es/methods/get';
-import '../../../es/methods/html';
-import '../../../es/methods/replaceWith';
+import $ from '../../jq_or_jquery';
 
 describe('.replaceWith()', function() {
-  function reset() {
+  function reset(): void {
     $('#test').html(
       '<div id="child">' +
         '<div id="child1"></div>' +

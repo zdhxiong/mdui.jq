@@ -1,8 +1,4 @@
-import $ from '../../../es/$';
-import '../../../es/methods/children';
-import '../../../es/methods/eq';
-import '../../../es/methods/html';
-import '../../../es/methods/is';
+import $ from '../../jq_or_jquery';
 
 describe('.children()', function() {
   beforeEach(function() {

@@ -1,6 +1,4 @@
-import $ from '../../../es/$';
-import '../../../es/methods/css';
-import '../../../es/methods/html';
+import $ from '../../jq_or_jquery';
 
 describe('.css()', function() {
   beforeEach(function() {

@@ -1,7 +1,4 @@
-import $ from '../../../es/$';
-import '../../../es/methods/get';
-import '../../../es/methods/html';
-import '../../../es/methods/offsetParent';
+import $ from '../../jq_or_jquery';
 
 describe('.offsetParent()', function() {
   beforeEach(function() {

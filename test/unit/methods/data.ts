@@ -1,7 +1,4 @@
-import $ from '../../../es/$';
-import '../../../es/methods/data';
-import '../../../es/methods/html';
-import '../../../es/methods/removeData';
+import $ from '../../jq_or_jquery';
 
 describe('.data(), .removeData()', function() {
   beforeEach(function() {

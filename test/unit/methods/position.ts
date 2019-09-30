@@ -1,6 +1,4 @@
-import $ from '../../../es/$';
-import '../../../es/methods/html';
-import '../../../es/methods/position';
+import $ from '../../jq_or_jquery';
 
 describe('.position()', function() {
   beforeEach(function() {

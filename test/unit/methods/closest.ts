@@ -1,8 +1,4 @@
-import $ from '../../../es/$';
-import '../../../es/methods/closest';
-import '../../../es/methods/eq';
-import '../../../es/methods/html';
-import '../../../es/methods/is';
+import $ from '../../jq_or_jquery';
 
 describe('.closest()', function() {
   beforeEach(function() {

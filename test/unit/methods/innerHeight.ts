@@ -1,1 +1,3 @@
-describe('.innerHeight()', function() {});
+describe('.innerHeight()', function() {
+  return '';
+});

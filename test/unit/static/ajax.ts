@@ -1,4 +1,3 @@
-import $ from '../../../es/$';
-import '../../../es/static/ajax';
-
-describe('$.ajax', function() {});
+describe('$.ajax', function() {
+  return '';
+});

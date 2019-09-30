@@ -1,6 +1,4 @@
-import $ from '../../../es/$';
-import '../../../es/methods/each';
-import '../../../es/methods/html';
+import $ from '../../jq_or_jquery';
 
 describe('.each()', function() {
   beforeEach(function() {

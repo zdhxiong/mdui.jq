@@ -1,6 +1,4 @@
-import $ from '../../../es/$';
-import '../../../es/methods/html';
-import '../../../es/methods/prepend';
+import $ from '../../jq_or_jquery';
 
 describe('.prepend()', function() {
   const $test = $('#test');

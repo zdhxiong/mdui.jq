@@ -1,5 +1,4 @@
-import $ from '../../../es/$';
-import '../../../es/static/each';
+import $ from '../../jq_or_jquery';
 
 describe('$.each', function() {
   it('$.each(array, callback)', function() {

@@ -1,8 +1,4 @@
-import $ from '../../../es/$';
-import '../../../es/methods/eq';
-import '../../../es/methods/html';
-import '../../../es/methods/is';
-import '../../../es/methods/prev';
+import $ from '../../jq_or_jquery';
 
 describe('.prev()', function() {
   beforeEach(function() {
