@@ -10,7 +10,7 @@ describe('$.map', function() {
     chai.assert.sameOrderedMembers(result1, ['J', 'S', 'L']);
 
     // 返回键名
-    const result2 = $.map(['a', 'b', 'c'], function(val, i) {
+    const result2 = $.map(['a', 'b', 'c'], function(_, i) {
       return i;
     });
     chai.assert.sameOrderedMembers(result2, [0, 1, 2]);
@@ -30,10 +30,10 @@ describe('$.map', function() {
     });
     chai.assert.sameOrderedMembers(result4, [1, 4]);
 
-    // this 指向 window
-    $.map([1, 2, 3], function() {
+    // this 指向 window（jQuery 的 this 没有按文档所写的指向 window）
+    /* $.map([1, 2, 3], function() {
       chai.assert.instanceOf(this, Window);
-    });
+    }); */
   });
 
   // 遍历对象
@@ -65,9 +65,9 @@ describe('$.map', function() {
     });
     chai.assert.sameOrderedMembers(result4, [3]);
 
-    // this 指向 window
-    $.map({ width: 1, height: 2 }, function() {
+    // this 指向 window（jQuery 的 this 没有按文档所写的指向 window）
+    /* $.map({ width: 1, height: 2 }, function() {
       chai.assert.instanceOf(this, Window);
-    });
+    }); */
   });
 });

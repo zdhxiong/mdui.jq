@@ -2,40 +2,48 @@ import $ from '../../jq_or_jquery';
 
 describe('.removeClass()', function() {
   beforeEach(function() {
-    $('#test').html('<div id="foo" class="mdui class1 class2">Goodbye</div>');
+    $('#test').html(`
+<div id="foo" class="mdui class1 class2">Hello</div>
+<div id="bar">World</div>
+    `);
   });
 
   it('.removeClass(name)', function() {
-    const $div = $('#foo');
-    chai.assert.equal($div[0].classList.value, 'mdui class1 class2');
+    const $foo = $('#foo');
+    chai.assert.equal($foo[0].classList.value, 'mdui class1 class2');
 
     // 移除空字符串类
-    $div.removeClass('');
-    chai.assert.equal($div[0].classList.value, 'mdui class1 class2');
+    $foo.removeClass('');
+    chai.assert.equal($foo[0].classList.value, 'mdui class1 class2');
 
     // 移除不存在的类
-    $div.removeClass('fffff');
-    chai.assert.equal($div[0].classList.value, 'mdui class1 class2');
+    $foo.removeClass('fffff');
+    chai.assert.equal($foo[0].classList.value, 'mdui class1 class2');
 
     // 移除一个类
     // 返回 JQ
-    const $result = $div.removeClass('mdui');
-    chai.assert.deepEqual($result, $div);
-    chai.assert.equal($div[0].classList.value, 'class1 class2');
+    const $result = $foo.removeClass('mdui');
+    chai.assert.deepEqual($result, $foo);
+    chai.assert.equal($foo[0].classList.value, 'class1 class2');
 
     // 移除多个类，用空格分隔
-    $div.removeClass('class1  class2');
-    chai.assert.equal($div[0].classList.value, '');
+    $foo.removeClass('class1  class2');
+    chai.assert.equal($foo[0].classList.value, '');
+
+    // 没有传入参数，移除所有 class
+    $foo.addClass('mdui1 mdui2').removeClass();
+    chai.assert.equal($foo[0].classList.value, '');
   });
 
   it('.removeClass(callback)', function() {
-    const $div = $('#foo');
+    const $foo = $('#foo');
+    const $bar = $('#bar');
 
     // 函数的 this 指向，参数验证
     let _this;
     let _i;
     let _currentClassName;
-    $div.removeClass(function(i, currentClassName) {
+    $foo.removeClass(function(i, currentClassName) {
       _this = this;
       _i = i;
       _currentClassName = currentClassName;
@@ -43,20 +51,31 @@ describe('.removeClass()', function() {
       return '';
     });
 
-    chai.assert.deepEqual(_this, $div[0]);
+    chai.assert.deepEqual(_this, $foo[0]);
     chai.assert.equal(_i, 0);
     chai.assert.equal(_currentClassName, 'mdui class1 class2');
 
     // 通过函数返回类
-    $div.removeClass(function() {
+    $foo.removeClass(function() {
       return 'mdui';
     });
-    chai.assert.equal($div[0].classList.value, 'class1 class2');
+    chai.assert.equal($foo[0].classList.value, 'class1 class2');
 
     // 通过函数返回多个类
-    $div.removeClass(function() {
+    $foo.removeClass(function() {
       return 'class1 class2';
     });
-    chai.assert.equal($div[0].classList.value, '');
+    chai.assert.equal($foo[0].classList.value, '');
+
+    // 函数返回不同的值
+    $('#test div')
+      .addClass('item-0 item-1')
+      .removeClass(function(index) {
+        return `item-${index}`;
+      });
+    chai.assert.isFalse($foo.hasClass('item-0'));
+    chai.assert.isTrue($foo.hasClass('item-1'));
+    chai.assert.isTrue($bar.hasClass('item-0'));
+    chai.assert.isFalse($bar.hasClass('item-1'));
   });
 });

@@ -10,11 +10,25 @@ declare module '../JQ' {
 ```js
 $('p').removeClass('item')
 ```
-     @example ````移除 p 元素上的 item1 和 item2 两个类
+     * @example ````移除 p 元素上的 item1 和 item2 两个类
 ```js
 $('p').removeClass('item1 item2')
 ```
+     * @example ````移除 p 元素上的由回调函数返回的类
+```js
+$('p').removeClass(function () {
+  return 'item1';
+});
+```
      */
-    removeClass(className: string): this;
+    removeClass(
+      className?:
+        | string
+        | ((
+            this: HTMLElement,
+            index: number,
+            currentClassName: string,
+          ) => string),
+    ): this;
   }
 }

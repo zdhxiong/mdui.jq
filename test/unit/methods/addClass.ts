@@ -2,37 +2,41 @@ import $ from '../../jq_or_jquery';
 
 describe('.addClass()', function() {
   beforeEach(function() {
-    $('#test').html('<div id="foo">Goodbye</div>');
+    $('#test').html(`
+<div id="foo">Hello</div>
+<div id="bar">World</div>
+    `);
   });
 
   it('.addClass(name)', function() {
-    const $div = $('#foo');
-    chai.assert.equal($div[0].classList.value, '');
+    const $foo = $('#foo');
+    chai.assert.equal($foo[0].classList.value, '');
 
     // 添加空字符
-    $div.addClass('');
-    chai.assert.equal($div[0].classList.value, '');
+    $foo.addClass('');
+    chai.assert.equal($foo[0].classList.value, '');
 
     // 添加一个类
     // 返回 JQ
-    const $result = $div.addClass('mdui');
-    chai.assert.deepEqual($result, $div);
-    chai.assert.equal($div[0].classList.value, 'mdui');
+    const $result = $foo.addClass('mdui');
+    chai.assert.deepEqual($result, $foo);
+    chai.assert.equal($foo[0].classList.value, 'mdui');
 
     // 添加多个类，用空格分隔
-    $div.addClass('mdui1  mdui2');
-    chai.assert.equal($div[0].classList.value, 'mdui mdui1 mdui2');
+    $foo.addClass('mdui1  mdui2');
+    chai.assert.equal($foo[0].classList.value, 'mdui mdui1 mdui2');
   });
 
   it('.addClass(callback)', function() {
-    const $div = $('#foo');
+    const $foo = $('#foo');
+    const $bar = $('#bar');
 
     // 函数的 this 指向，参数验证
     let _this;
     let _i;
     let _currentClassName;
-    $div.addClass('mdui1 mdui2');
-    $div.addClass(function(i, currentClassName) {
+    $foo.addClass('mdui1 mdui2');
+    $foo.addClass(function(i, currentClassName) {
       _this = this;
       _i = i;
       _currentClassName = currentClassName;
@@ -40,23 +44,32 @@ describe('.addClass()', function() {
       return '';
     });
 
-    chai.assert.deepEqual(_this, $div[0]);
+    chai.assert.deepEqual(_this, $foo[0]);
     chai.assert.equal(_i, 0);
     chai.assert.equal(_currentClassName, 'mdui1 mdui2');
 
     // 通过函数返回类
-    $div.addClass(function() {
+    $foo.addClass(function() {
       return 'mdui3';
     });
-    chai.assert.equal($div[0].classList.value, 'mdui1 mdui2 mdui3');
+    chai.assert.equal($foo[0].classList.value, 'mdui1 mdui2 mdui3');
 
     // 通过函数返回多个类
-    $div.addClass(function() {
+    $foo.addClass(function() {
       return 'mdui4 mdui5  mdui6';
     });
     chai.assert.equal(
-      $div[0].classList.value,
+      $foo[0].classList.value,
       'mdui1 mdui2 mdui3 mdui4 mdui5 mdui6',
     );
+
+    // 函数返回不同的值
+    $('#test div').addClass(function(index) {
+      return `item-${index}`;
+    });
+    chai.assert.isTrue($foo.hasClass('item-0'));
+    chai.assert.isFalse($foo.hasClass('item-1'));
+    chai.assert.isFalse($bar.hasClass('item-0'));
+    chai.assert.isTrue($bar.hasClass('item-1'));
   });
 });

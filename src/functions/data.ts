@@ -1,7 +1,7 @@
 import JQElement from '../types/JQElement';
 import PlainObject from '../interfaces/PlainObject';
 import dataNS from './utils/data';
-import { isElement, isObjectLike, isUndefined } from '../utils';
+import { isObjectLike, isUndefined } from '../utils';
 import each from './each';
 
 /**
@@ -23,6 +23,19 @@ function setObjToElement(element: JQElement, obj: PlainObject): void {
 }
 
 /**
+ * value 为 undefined 时，相当于 data(element, key)
+ * @param element 用于存储数据的元素
+ * @param key 数据键名
+ * @param value undefined
+ * @example
+```js
+data(document.body, 'type', undefined)
+// 'image'
+```
+ */
+function data(element: JQElement, key: string, value: undefined): any;
+
+/**
  * 在指定元素上存储数据，返回设置的值
  * @param element 用于存储数据的元素
  * @param key 数据键名
@@ -34,18 +47,6 @@ data(document.body, 'type', 'image')
 ```
  */
 function data<T>(element: JQElement, key: string, value: T): T;
-
-/**
- * 在指定元素上存储数据，返回设置的键值对数据
- * @param element 用于存储数据的元素
- * @param data 键值对数据
- * @example
-```js
-data(document.body, { 'width': 1020, 'height': 680 })
-// { 'width': 1020, 'height': 680 }
-```
- */
-function data<T extends PlainObject>(element: JQElement, data: T): T;
 
 /**
  * 获取在指定元素上存储的指定键名对应的值
@@ -69,6 +70,18 @@ data(document.body)
 ```
  */
 function data(element: JQElement): PlainObject;
+
+/**
+ * 在指定元素上存储数据，返回设置的键值对数据
+ * @param element 用于存储数据的元素
+ * @param data 键值对数据
+ * @example
+```js
+data(document.body, { 'width': 1020, 'height': 680 })
+// { 'width': 1020, 'height': 680 }
+```
+ */
+function data<T extends PlainObject>(element: JQElement, data: T): T;
 
 function data(
   element: JQElement,
@@ -94,32 +107,8 @@ function data(
   // 获取所有值
   // data(element)
   if (isUndefined(key)) {
-    const result: PlainObject = {};
-
-    // 获取元素上的 data- 属性
-    if (isElement(element)) {
-      each(element.attributes, (_, attribute) => {
-        const { name } = attribute;
-
-        if (name.indexOf('data-') === 0) {
-          const prop = name
-            .slice(5)
-            .replace(/-./g, u => u.charAt(1).toUpperCase());
-
-          result[prop] = attribute.value;
-        }
-      });
-    }
-
     // @ts-ignore
-    if (element[dataNS]) {
-      // @ts-ignore
-      each(element[dataNS], (key: string, value) => {
-        result[key] = value;
-      });
-    }
-
-    return result;
+    return element[dataNS] ? element[dataNS] : {};
   }
 
   // 从 dataNS 中获取指定值
@@ -128,16 +117,6 @@ function data(
   if (element[dataNS] && key in element[dataNS]) {
     // @ts-ignore
     return element[dataNS][key];
-  }
-
-  // 从 data- 属性中获取指定值
-  // data(element, 'key')
-  if (isElement(element)) {
-    const dataKey = element.getAttribute(`data-${key}`);
-
-    if (dataKey) {
-      return dataKey;
-    }
   }
 
   return undefined;

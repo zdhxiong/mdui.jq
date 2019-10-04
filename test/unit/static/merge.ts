@@ -5,9 +5,10 @@ describe('$.merge', function() {
     const first = ['a', 'b', 'c'];
     const second = ['c', 'd', 'e'];
     const result = $.merge(first, second);
+    const exceptedResult = ['a', 'b', 'c', 'c', 'd', 'e'];
 
-    chai.assert.sameOrderedMembers(result, ['a', 'b', 'c', 'c', 'd', 'e']);
-    chai.assert.sameOrderedMembers(first, result);
+    chai.assert.sameOrderedMembers(result, exceptedResult);
+    chai.assert.sameOrderedMembers(first, exceptedResult);
     chai.assert.sameOrderedMembers(second, ['c', 'd', 'e']);
   });
 });

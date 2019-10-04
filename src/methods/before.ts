@@ -15,7 +15,11 @@ $('<p>I would like to say: </p>').before('<b>Hello</b>')
 // [ <b>Hello</b><p>I would like to say: </p> ]
 ```
      */
-    before(selector: JQSelector): this;
+    before(
+      selector:
+        | JQSelector
+        | ((this: HTMLElement, index: number, html: string) => JQSelector),
+    ): this;
   }
 }
 

@@ -2,13 +2,13 @@ import $ from '../../jq_or_jquery';
 
 describe('$.data, $.removeData', function() {
   beforeEach(function() {
-    $('#test').html(
-      '<div class="intro" data-key="val" data-key-sub="val-sub"></div>',
-    );
+    $('#test').html('<div class="intro" data-key="val"></div>');
   });
 
   it('$.data(element, key, value)', function() {
     const intro = $('.intro')[0];
+    const testArrayData = [1, 2, 3, 4];
+    const testObjectData = { test1: 'test1', test2: 'test2' };
 
     // 存储字符串
     const val = $.data(intro, 'string', 'value');
@@ -20,50 +20,60 @@ describe('$.data, $.removeData', function() {
     chai.assert.isUndefined($.data(intro, 'string'));
 
     // 覆盖 data-* 属性
-    $.data(intro, 'key-sub', 'testval');
-    chai.assert.equal($.data(intro, 'key-sub'), 'testval');
+    $.data(intro, 'key', 'newval');
+    chai.assert.equal($.data(intro, 'key'), 'newval');
 
-    // 删除数据后，恢复为 data-* 属性的值
-    $.removeData(intro, 'key-sub');
-    chai.assert.equal($.data(intro, 'key-sub'), 'val-sub');
+    // 删除数据后，恢复为默认
+    $.removeData(intro, 'key');
+    chai.assert.isUndefined($.data(intro, 'key'));
 
     // 存储对象
-    $.data(intro, 'object', { test: 'test' });
-    chai.assert.deepEqual($.data(intro, 'object'), { test: 'test' });
+    $.data(intro, 'object', testObjectData);
+    chai.assert.deepEqual($.data(intro, 'object'), testObjectData);
 
     // 存储数组
-    $.data(intro, 'array', [1, 2, 3, 4]);
-    chai.assert.sameOrderedMembers($.data(intro, 'array'), [1, 2, 3, 4]);
+    $.data(intro, 'array', testArrayData);
+    chai.assert.sameOrderedMembers($.data(intro, 'array'), testArrayData);
+
+    // $.data(element, key, undefined) 相当于 $.data(element, key)
+    chai.assert.sameOrderedMembers(
+      $.data(intro, 'array', undefined),
+      testArrayData,
+    );
+    chai.assert.sameOrderedMembers($.data(intro, 'array'), testArrayData);
+
+    // $.data(element, key, null) 将存储 null 值
+    chai.assert.isNull($.data(intro, 'nullkey', null));
+    chai.assert.isNull($.data(intro, 'nullkey'));
   });
 
   it('$.data(element, data)', function() {
     const intro = $('.intro')[0];
+    const testObjectData = { test1: 'test1', test2: 'test2' };
 
     // 通过键值对存储数据
-    const val = $.data(intro, {
-      objkey1: 'objval1',
-      objkey2: 'objval2',
-    });
-    chai.assert.equal(val.objkey1, 'objval1');
-    chai.assert.equal(val.objkey2, 'objval2');
-    chai.assert.equal($.data(intro, 'objkey1'), 'objval1');
-    chai.assert.equal($.data(intro, 'objkey2'), 'objval2');
+    const val = $.data(intro, testObjectData);
+    chai.assert.deepEqual(val, testObjectData);
+    chai.assert.deepEqual($.data(intro), testObjectData);
+    chai.assert.equal($.data(intro, 'test1'), 'test1');
+    chai.assert.equal($.data(intro, 'test2'), 'test2');
   });
 
   it('$.data(element, key)', function() {
     const intro = $('.intro')[0];
 
-    // 读取 data-* 属性
-    chai.assert.equal($.data(intro, 'key'), 'val');
-    chai.assert.equal($.data(intro, 'key-sub'), 'val-sub');
+    // 无法获取 data-* 的值
+    chai.assert.isUndefined($.data(intro, 'key'));
+
+    // 读取不存在的值
+    chai.assert.isUndefined($.data(intro, 'test'));
   });
 
   it('$.data(element)', function() {
     const intro = $('.intro')[0];
 
-    // 读取 data-* 属性
-    chai.assert.equal($.data(intro).key, 'val');
-    chai.assert.equal($.data(intro).keySub, 'val-sub');
+    // 读取不了 data-* 属性
+    chai.assert.deepEqual($.data(intro), {});
 
     // 获取所有数据
     $.data(intro, 'string', 'value');
@@ -75,16 +85,11 @@ describe('$.data, $.removeData', function() {
       string: 'value',
       objkey1: 'objval1',
       objkey2: 'objval2',
-      key: 'val',
-      keySub: 'val-sub',
     });
 
     // 删除所有数据
     $.removeData(intro);
-    chai.assert.deepEqual($.data(intro), {
-      key: 'val',
-      keySub: 'val-sub',
-    });
+    chai.assert.deepEqual($.data(intro), {});
   });
 
   it('$.removeData(element)', function() {

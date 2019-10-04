@@ -72,7 +72,8 @@ describe('$()', function() {
   it('$($elements)', function() {
     const $class = $('.testclass');
     const $jq = $($class);
-    chai.assert.equal($class, $jq);
+    // jquery 中两个对象不相同，但包含的元素相同；mdui.jq 中两个对象完全相同
+    chai.assert.sameOrderedMembers($class.get(), $jq.get());
   });
 
   it('$(callback)', function() {
