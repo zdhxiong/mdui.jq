@@ -2,16 +2,20 @@ import $ from '../../jq_or_jquery';
 
 describe('.removeProp()', function() {
   beforeEach(function() {
-    $('#test').html('<input type="checkbox" id="child"/>');
+    $('#test').html('<input id="checkbox" type="checkbox" checked/>');
   });
 
-  it('.removeProp(name: string): JQ', function() {
-    const $child = $('#child');
+  it('.removeProp(name)', function() {
+    const $checkbox = $('#checkbox');
 
-    $child.prop('mmmm', 'nnnn');
-    chai.assert.equal($child.prop('mmmm'), 'nnnn');
+    $checkbox.prop('mmmm', 'nnnn');
+    chai.assert.equal($checkbox.prop('mmmm'), 'nnnn');
+    $checkbox.removeProp('mmmm');
+    chai.assert.isUndefined($checkbox.prop('mmmm'));
 
-    $child.removeProp('mmmm');
-    chai.assert.isUndefined($child.prop('mmmm'));
+    // 不能用 removeProp 删除内置属性
+    chai.assert.isTrue($checkbox.prop('checked'));
+    $checkbox.removeProp('checked');
+    chai.assert.isTrue($checkbox.prop('checked'));
   });
 });

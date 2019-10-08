@@ -1,9 +1,9 @@
-import JQElement from '../types/JQElement';
-import JQSelector from '../types/JQSelector';
-import { isString, isWindow } from '../utils';
-import { JQ } from '../JQ';
 import $ from '../$';
 import contains from '../functions/contains';
+import { JQ } from '../JQ';
+import JQElement from '../types/JQElement';
+import Selector from '../types/Selector';
+import { isString, isWindow } from '../utils';
 import './filter';
 import './find';
 
@@ -17,11 +17,11 @@ declare module '../JQ' {
 $('li').has('ul').css('background-color', 'red');
 ```
      */
-    has(selector: JQSelector): this;
+    has(selector: Selector | HTMLElement | null): this;
   }
 }
 
-$.fn.has = function(this: JQ, selector: JQSelector): JQ {
+$.fn.has = function(this: JQ, selector: Selector | HTMLElement | null): JQ {
   const $targets = isString(selector) ? this.find(selector) : $(selector);
   const { length } = $targets;
 

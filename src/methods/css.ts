@@ -1,12 +1,13 @@
-import JQElement from '../types/JQElement';
 import PlainObject from '../interfaces/PlainObject';
+import JQElement from '../types/JQElement';
 import './attr';
 
 declare module '../JQ' {
   interface JQ<T = JQElement> {
     /**
      * 设置元素的样式
-     * @param propertyName
+     * 如果值为 void 或 undefined，则不修改当前样式
+     * @param name
      * @param value
      * @example ````设置样式
 ```js
@@ -20,11 +21,11 @@ $('#box').css('color', function () {
 ```
      */
     css(
-      propertyName: string,
+      name: string,
       value:
         | string
         | number
-        | null
+        | undefined
         | ((
             this: HTMLElement,
             index: number,
@@ -56,7 +57,7 @@ $('#box').css({
       properties: PlainObject<
         | string
         | number
-        | null
+        | undefined
         | ((
             this: HTMLElement,
             index: number,
@@ -67,12 +68,12 @@ $('#box').css({
 
     /**
      * 获取第一个元素的样式
-     * @param propertyName
+     * @param name
      * @example
 ```js
 $('#box').css('color')
 ```
      */
-    css(propertyName: string): string | undefined;
+    css(name: string): string | undefined;
   }
 }

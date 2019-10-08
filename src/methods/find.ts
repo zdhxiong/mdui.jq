@@ -1,9 +1,9 @@
+import $ from '../$';
+import merge from '../functions/merge';
+import { JQ } from '../JQ';
 import JQElement from '../types/JQElement';
 import Selector from '../types/Selector';
 import { isWindow } from '../utils';
-import { JQ } from '../JQ';
-import $ from '../$';
-import merge from '../functions/merge';
 import './each';
 import './get';
 
@@ -25,9 +25,11 @@ $.fn.find = function(this: JQ, selector: Selector): JQ {
   const foundElements: HTMLElement[] = [];
 
   this.each((_, element) => {
-    if (!isWindow(element)) {
-      merge(foundElements, $(element.querySelectorAll(selector)).get());
+    if (isWindow(element)) {
+      return;
     }
+
+    merge(foundElements, $(element.querySelectorAll(selector)).get());
   });
 
   return new JQ(foundElements);

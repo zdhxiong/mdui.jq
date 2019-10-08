@@ -13,19 +13,25 @@ describe('.find()', function() {
     `);
   });
 
-  it('.find(selector): JQ', function() {
+  it('.find(selector)', function() {
     let $children = $('#child').find('.child');
     chai.assert.lengthOf($children, 2);
-    chai.assert.equal($children[0], document.getElementById('child-1'));
-    chai.assert.equal($children[1], document.getElementById('child-2'));
+    chai.assert.isTrue($children.eq(0).is('#child-1'));
+    chai.assert.isTrue($children.eq(1).is('#child-2'));
 
     $children = $('#child').find('.child2');
     chai.assert.lengthOf($children, 2);
-    chai.assert.equal($children[0], document.getElementById('child-2-1'));
-    chai.assert.equal($children[1], document.getElementById('child-2-2'));
+    chai.assert.isTrue($children.eq(0).is('#child-2-1'));
+    chai.assert.isTrue($children.eq(1).is('#child-2-2'));
 
     $children = $('#child').find('#child-2-1');
     chai.assert.lengthOf($children, 1);
-    chai.assert.equal($children[0], document.getElementById('child-2-1'));
+    chai.assert.isTrue($children.eq(0).is('#child-2-1'));
+
+    $children = $('#child').find('div');
+    chai.assert.lengthOf($children, 4);
+
+    chai.assert.lengthOf($(window).find('.child'), 0);
+    chai.assert.lengthOf($(document).find('.child'), 2);
   });
 });

@@ -2,23 +2,31 @@ import $ from '../../jq_or_jquery';
 
 describe('.removeAttr()', function() {
   beforeEach(function() {
-    $('#test').html('<div id="child" mdui="test"></div>');
+    $('#test').html(
+      '<div id="div" mdui="test" title="hello" label="world" name="mdui"></div>',
+    );
   });
 
-  it('.removeAttr(name: string): JQ', function() {
-    chai.assert.equal(
-      $('#child')
-        .get(0)
-        .getAttribute('mdui'),
-      'test',
-    );
+  it('.removeAttr(name)', function() {
+    const $div = $('#div');
 
-    $('#child').removeAttr('mdui');
-    chai.assert.equal(
-      $('#child')
-        .get(0)
-        .getAttribute('mdui'),
-      null,
-    );
+    chai.assert.equal($div.attr('mdui'), 'test');
+    const $divResult = $div.removeAttr('mdui');
+    chai.assert.deepEqual($divResult, $div);
+    chai.assert.isUndefined($div.attr('mdui'));
+
+    chai.assert.equal($div.attr('title'), 'hello');
+    $div.removeAttr('title');
+    chai.assert.isUndefined($div.attr('title'));
+  });
+
+  it('.removeAttr(names)', function() {
+    const $div = $('#div');
+
+    $div.removeAttr('mdui title   name');
+    chai.assert.isUndefined($div.attr('mdui'));
+    chai.assert.isUndefined($div.attr('title'));
+    chai.assert.isUndefined($div.attr('name'));
+    chai.assert.equal($div.attr('label'), 'world');
   });
 });

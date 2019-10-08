@@ -10,21 +10,21 @@ describe('.toggleClass()', function() {
 
   it('.toggleClass(name)', function() {
     const $foo = $('#foo');
-    chai.assert.equal($foo[0].classList.value, 'mdui');
+    chai.assert.equal($foo.attr('class'), 'mdui');
 
     // 切换空类
     $foo.toggleClass('');
-    chai.assert.equal($foo[0].classList.value, 'mdui');
+    chai.assert.equal($foo.attr('class'), 'mdui');
 
     // 切换一个类
     // 返回 JQ
     const $result = $foo.toggleClass('box1');
     chai.assert.deepEqual($result, $foo);
-    chai.assert.equal($foo[0].classList.value, 'mdui box1');
+    chai.assert.equal($foo.attr('class'), 'mdui box1');
 
     // 切换多个类，用空格分隔
     $foo.toggleClass('box1 box2');
-    chai.assert.equal($foo[0].classList.value, 'mdui box2');
+    chai.assert.equal($foo.attr('class'), 'mdui box2');
   });
 
   it('.toggleClass(callback)', function() {
@@ -51,13 +51,13 @@ describe('.toggleClass()', function() {
     $foo.toggleClass(function() {
       return 'mdui1';
     });
-    chai.assert.equal($foo[0].classList.value, 'mdui mdui1');
+    chai.assert.equal($foo.attr('class'), 'mdui mdui1');
 
     // 通过函数返回多个类
     $foo.toggleClass(function() {
       return 'mdui1  mdui2';
     });
-    chai.assert.equal($foo[0].classList.value, 'mdui mdui2');
+    chai.assert.equal($foo.attr('class'), 'mdui mdui2');
 
     // 函数返回不同的值
     $('#test div')

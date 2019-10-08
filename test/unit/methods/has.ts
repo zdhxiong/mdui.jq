@@ -12,15 +12,21 @@ describe('.has()', function() {
     `);
   });
 
-  it('.has(JQSelector): JQ', function() {
-    // selector
-    let $children = $('.child').has('#child2-1');
+  it('.has(selector)', function() {
+    const $children = $('.child').has('#child2-1');
     chai.assert.lengthOf($children, 1);
     chai.assert.isTrue($children.eq(0).is('#child2'));
 
-    // dom
-    $children = $('.child').has(document.getElementById('child2-1'));
+    chai.assert.lengthOf($('.child').has('.notfound'), 0);
+    chai.assert.lengthOf($(window).has('child'), 0);
+  });
+
+  it('.has(dom)', function() {
+    const child = document.getElementById('child2-1');
+    const $children = $('.child').has(child);
     chai.assert.lengthOf($children, 1);
     chai.assert.isTrue($children.eq(0).is('#child2'));
+
+    chai.assert.lengthOf($(window).has(child), 0);
   });
 });

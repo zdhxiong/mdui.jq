@@ -1,5 +1,6 @@
 import $ from '../$';
 import JQElement from '../types/JQElement';
+import { isElement } from '../utils';
 
 declare module '../JQ' {
   interface JQ<T = JQElement> {
@@ -16,7 +17,7 @@ $('div').hasClass('item')
 }
 
 $.fn.hasClass = function(className: string): boolean {
-  if (!this[0] || !className) {
+  if (!isElement(this[0])) {
     return false;
   }
 

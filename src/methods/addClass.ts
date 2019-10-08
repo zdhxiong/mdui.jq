@@ -61,7 +61,7 @@ each(['add', 'remove', 'toggle'], (_, name: classListMethod) => {
       }
 
       const classes = (isFunction(className)
-        ? className.call(element, i, element.classList.value)
+        ? className.call(element, i, $(element).attr('class') || '')
         : className
       )
         .split(' ')

@@ -10,29 +10,29 @@ describe('.removeClass()', function() {
 
   it('.removeClass(name)', function() {
     const $foo = $('#foo');
-    chai.assert.equal($foo[0].classList.value, 'mdui class1 class2');
+    chai.assert.equal($foo.attr('class'), 'mdui class1 class2');
 
     // 移除空字符串类
     $foo.removeClass('');
-    chai.assert.equal($foo[0].classList.value, 'mdui class1 class2');
+    chai.assert.equal($foo.attr('class'), 'mdui class1 class2');
 
     // 移除不存在的类
     $foo.removeClass('fffff');
-    chai.assert.equal($foo[0].classList.value, 'mdui class1 class2');
+    chai.assert.equal($foo.attr('class'), 'mdui class1 class2');
 
     // 移除一个类
     // 返回 JQ
     const $result = $foo.removeClass('mdui');
     chai.assert.deepEqual($result, $foo);
-    chai.assert.equal($foo[0].classList.value, 'class1 class2');
+    chai.assert.equal($foo.attr('class'), 'class1 class2');
 
     // 移除多个类，用空格分隔
     $foo.removeClass('class1  class2');
-    chai.assert.equal($foo[0].classList.value, '');
+    chai.assert.equal($foo.attr('class'), '');
 
     // 没有传入参数，移除所有 class
     $foo.addClass('mdui1 mdui2').removeClass();
-    chai.assert.equal($foo[0].classList.value, '');
+    chai.assert.equal($foo.attr('class'), '');
   });
 
   it('.removeClass(callback)', function() {
@@ -59,13 +59,13 @@ describe('.removeClass()', function() {
     $foo.removeClass(function() {
       return 'mdui';
     });
-    chai.assert.equal($foo[0].classList.value, 'class1 class2');
+    chai.assert.equal($foo.attr('class'), 'class1 class2');
 
     // 通过函数返回多个类
     $foo.removeClass(function() {
       return 'class1 class2';
     });
-    chai.assert.equal($foo[0].classList.value, '');
+    chai.assert.equal($foo.attr('class'), '');
 
     // 函数返回不同的值
     $('#test div')

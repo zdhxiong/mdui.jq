@@ -17,7 +17,9 @@ describe('.eq()', function() {
     chai.assert.isTrue($children.eq(1).is('#child2'));
     chai.assert.isTrue($children.eq(2).is('#child3'));
     chai.assert.isTrue($children.eq(3).is('#child4'));
+    chai.assert.lengthOf($children.eq(4), 0);
     chai.assert.isTrue($children.eq(-1).is('#child4'));
     chai.assert.isTrue($children.eq(-3).is('#child2'));
+    chai.assert.lengthOf($children.eq(-5), 0);
   });
 });

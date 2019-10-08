@@ -3,18 +3,26 @@ import $ from '../../jq_or_jquery';
 describe('.clone()', function() {
   beforeEach(function() {
     $('#test').html(`
-<div id="child">
-  <div id="child1" class="child1">
-    <div id="child2" class="child2"></div>
+<div class="container">
+  <div class="hello">Hello</div>
+  <div class="goodbye">
+    <span>Goodbye</span>
   </div>
 </div>
     `);
   });
 
-  it('.clone(): JQ', function() {
-    const $new = $('#child1').clone();
+  it('.clone()', function() {
+    $('.hello')
+      .clone()
+      .appendTo('.goodbye');
 
-    chai.assert.isTrue($new.hasClass('child1'));
-    chai.assert.lengthOf($new.find('#child2'), 1);
+    chai.assert.lengthOf($('.container').children('.hello'), 1);
+    const $goodbyeChildren = $('.goodbye').children();
+    chai.assert.lengthOf($goodbyeChildren, 2);
+    chai.assert.equal($goodbyeChildren[0].innerHTML, 'Goodbye');
+    chai.assert.equal($goodbyeChildren[1].innerHTML, 'Hello');
+
+    chai.assert.throw($(window).clone);
   });
 });

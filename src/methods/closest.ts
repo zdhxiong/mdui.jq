@@ -1,10 +1,10 @@
 import JQElement from '../types/JQElement';
-import JQSelector from '../types/JQSelector';
 import { JQ } from '../JQ';
 import $ from '../$';
 import './parents';
 import './eq';
 import './is';
+import Selector from '../types/Selector';
 
 declare module '../JQ' {
   interface JQ<T = JQElement> {
@@ -16,11 +16,14 @@ declare module '../JQ' {
 $('.box').closest('.parent')
 ```
      */
-    closest(selector: JQSelector): this;
+    closest(selector: Selector | JQ | HTMLElement | null): this;
   }
 }
 
-$.fn.closest = function(this: JQ, selector: JQSelector): JQ {
+$.fn.closest = function(
+  this: JQ,
+  selector: Selector | JQ | HTMLElement | null,
+): JQ {
   if (this.is(selector)) {
     return this;
   }

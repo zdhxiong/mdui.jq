@@ -10,21 +10,21 @@ describe('.addClass()', function() {
 
   it('.addClass(name)', function() {
     const $foo = $('#foo');
-    chai.assert.equal($foo[0].classList.value, '');
+    chai.assert.isUndefined($foo.attr('class'));
 
     // 添加空字符
     $foo.addClass('');
-    chai.assert.equal($foo[0].classList.value, '');
+    chai.assert.isUndefined($foo.attr('class'));
 
     // 添加一个类
     // 返回 JQ
     const $result = $foo.addClass('mdui');
     chai.assert.deepEqual($result, $foo);
-    chai.assert.equal($foo[0].classList.value, 'mdui');
+    chai.assert.equal($foo.attr('class'), 'mdui');
 
     // 添加多个类，用空格分隔
     $foo.addClass('mdui1  mdui2');
-    chai.assert.equal($foo[0].classList.value, 'mdui mdui1 mdui2');
+    chai.assert.equal($foo.attr('class'), 'mdui mdui1 mdui2');
   });
 
   it('.addClass(callback)', function() {
@@ -52,14 +52,14 @@ describe('.addClass()', function() {
     $foo.addClass(function() {
       return 'mdui3';
     });
-    chai.assert.equal($foo[0].classList.value, 'mdui1 mdui2 mdui3');
+    chai.assert.equal($foo.attr('class'), 'mdui1 mdui2 mdui3');
 
     // 通过函数返回多个类
     $foo.addClass(function() {
       return 'mdui4 mdui5  mdui6';
     });
     chai.assert.equal(
-      $foo[0].classList.value,
+      $foo.attr('class'),
       'mdui1 mdui2 mdui3 mdui4 mdui5 mdui6',
     );
 

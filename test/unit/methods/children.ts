@@ -14,7 +14,7 @@ describe('.children()', function() {
 `);
   });
 
-  it('.children(): JQ', function() {
+  it('.children()', function() {
     const $childs = $('#child').children();
 
     chai.assert.lengthOf($childs, 3);
@@ -23,11 +23,13 @@ describe('.children()', function() {
     chai.assert.isTrue($childs.eq(2).is('#child3'));
   });
 
-  it('.children(selector): JQ', function() {
-    const $childs = $('#child').children('.child');
-
+  it('.children(selector)', function() {
+    let $childs = $('#child').children('.child');
     chai.assert.lengthOf($childs, 2);
     chai.assert.isTrue($childs.eq(0).is('#child2'));
     chai.assert.isTrue($childs.eq(1).is('#child3'));
+
+    $childs = $('#child').children('#child2-1');
+    chai.assert.lengthOf($childs, 0);
   });
 });

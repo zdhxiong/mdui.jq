@@ -45,7 +45,7 @@ describe('$.map', function() {
     chai.assert.sameOrderedMembers(result1, [3, 4]);
 
     // 返回键
-    const result2 = $.map({ width: 1, height: 2 }, function(val, i) {
+    const result2 = $.map({ width: 1, height: 2 }, function(_, i) {
       return i;
     });
     chai.assert.sameOrderedMembers(result2, ['width', 'height']);

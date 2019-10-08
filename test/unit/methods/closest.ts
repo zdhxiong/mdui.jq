@@ -13,7 +13,7 @@ describe('.closest()', function() {
     `);
   });
 
-  it('.closest(JQSelector): JQ', function() {
+  it('.closest(selector)', function() {
     // $().closest(selector)
     let $dom = $('#child4').closest('.child');
     chai.assert.lengthOf($dom, 1);

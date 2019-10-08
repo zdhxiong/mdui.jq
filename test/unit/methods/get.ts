@@ -10,12 +10,15 @@ describe('.get()', function() {
     `);
   });
 
-  it('.get(index: number): JQElement', function() {
-    const ret = $('#test div').get(1);
-    chai.assert.equal(ret.innerHTML, 'b');
+  it('.get(index)', function() {
+    const $divs = $('#test div');
+
+    chai.assert.equal($divs.get(1).innerHTML, 'b');
+    chai.assert.isUndefined($divs.get(4));
+    chai.assert.equal($divs.get(-1).innerHTML, 'd');
   });
 
-  it('.get(): JQElement[]', function() {
+  it('.get()', function() {
     const ret = $('#test div').get();
     chai.assert.isArray(ret);
     chai.assert.lengthOf(ret, 4);

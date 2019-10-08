@@ -2,33 +2,115 @@ import $ from '../../jq_or_jquery';
 
 describe('.css()', function() {
   beforeEach(function() {
-    $('#test').html('<div id="css" style="width: 100px;"></div>');
+    $('#test').html(
+      '<div id="div" style="width: 100px;font-size: 20px;height: 100px;"></div>',
+    );
   });
 
   // 设置元素的样式
-  it('.css(name: string, value): JQ', function() {
-    const $element = $('#css');
+  it('.css(name, value)', function() {
+    const $div = $('#div');
 
-    $element.css('width', '200px');
-    chai.assert.equal($element.css('width'), '200px');
+    const $divResult = $div
+      .css('width', '200px')
+      .css('line-height', '20px')
+      .css('font-size', undefined);
+
+    chai.assert.deepEqual($divResult, $div);
+    chai.assert.equal($div.css('width'), '200px');
+    chai.assert.equal($div.css('line-height'), '20px');
+    chai.assert.equal($div.css('font-size'), '20px');
+  });
+
+  // 通过回调函数设置元素的样式
+  it('.css(name, callback)', function() {
+    const $div = $('#div');
+
+    const cbThis: HTMLElement[] = [];
+    const cbIndex: number[] = [];
+    const cbOldValue: string[] = [];
+
+    const $divResult = $div
+      .css('width', function(index, oldValue) {
+        cbThis.push(this);
+        cbIndex.push(index);
+        cbOldValue.push(oldValue);
+
+        return;
+      })
+      .css('line-height', function() {
+        return '20px';
+      })
+      .css('font-size', function() {
+        return undefined;
+      });
+
+    chai.assert.deepEqual($divResult, $div);
+    chai.assert.sameOrderedMembers(cbThis, [$div[0]]);
+    chai.assert.sameOrderedMembers(cbIndex, [0]);
+    chai.assert.sameOrderedMembers(cbOldValue, ['100px']);
+    chai.assert.equal($div.css('width'), '100px');
+    chai.assert.equal($div.css('line-height'), '20px');
+    chai.assert.equal($div.css('font-size'), '20px');
+    chai.assert.equal($div.css('height'), '100px');
   });
 
   // 同时设置多个样式
-  it('.css(object): JQ', function() {
-    const $element = $('#css');
+  it('.css(object)', function() {
+    const $div = $('#div');
 
-    $element.css({
+    const $divResult = $div.css({
       width: '200px',
-      height: '150px',
+      lineHeight: '20px',
+      fontSize: undefined,
     });
-    chai.assert.equal($element.css('width'), '200px');
-    chai.assert.equal($element.css('height'), '150px');
+
+    chai.assert.deepEqual($divResult, $div);
+    chai.assert.equal($div.css('width'), '200px');
+    chai.assert.equal($div.css('line-height'), '20px');
+    chai.assert.equal($div.css('font-size'), '20px');
+  });
+
+  // 通过回调函数同时设置多个样式
+  it('.css(object)', function() {
+    const $div = $('#div');
+
+    const cbThis: HTMLElement[] = [];
+    const cbIndex: number[] = [];
+    const cbOldValue: string[] = [];
+
+    const $divResult = $div.css({
+      width: function(index, oldValue) {
+        cbThis.push(this);
+        cbIndex.push(index);
+        cbOldValue.push(oldValue);
+
+        return;
+      },
+      'line-height': function() {
+        return '20px';
+      },
+      'font-size': function() {
+        return undefined;
+      },
+    });
+
+    chai.assert.deepEqual($divResult, $div);
+    chai.assert.sameOrderedMembers(cbThis, [$div[0]]);
+    chai.assert.sameOrderedMembers(cbIndex, [0]);
+    chai.assert.sameOrderedMembers(cbOldValue, ['100px']);
+    chai.assert.equal($div.css('width'), '100px');
+    chai.assert.equal($div.css('line-height'), '20px');
+    chai.assert.equal($div.css('font-size'), '20px');
+    chai.assert.equal($div.css('height'), '100px');
   });
 
   // 获取第一个元素的样式
-  it('.css(name: string): string | undefined', function() {
-    const $element = $('#css');
+  it('.css(name)', function() {
+    const $div = $('#div');
 
-    chai.assert.equal($element.css('width'), '100px');
+    chai.assert.equal($div.css('width'), '100px');
+    chai.assert.equal($div.css('font-size'), '20px');
+    chai.assert.equal($div.css('display'), 'block');
   });
 });

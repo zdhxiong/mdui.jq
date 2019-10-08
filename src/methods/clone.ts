@@ -1,5 +1,4 @@
 import JQElement from '../types/JQElement';
-import { isWindow } from '../utils';
 import { JQ } from '../JQ';
 import $ from '../$';
 import './map';
@@ -20,6 +19,6 @@ $('body').append($("#box").clone())
 
 $.fn.clone = function(this: JQ): JQ {
   return this.map(function() {
-    return !isWindow(this) ? this.cloneNode(true) : null;
+    return (this as HTMLElement).cloneNode(true);
   });
 };
