@@ -11,7 +11,18 @@ declare module '../JQ' {
 $('#box').text('text content')
 ```
      */
-    text(text: string | number | boolean): this;
+    text(
+      text:
+        | string
+        | number
+        | boolean
+        | undefined
+        | ((
+            this: HTMLElement,
+            index: number,
+            oldText: string,
+          ) => string | number | boolean | void | undefined),
+    ): this;
 
     /**
      * 获取当前元素的文本内容

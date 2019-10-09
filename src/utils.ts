@@ -38,6 +38,10 @@ function isElement(target: any): target is HTMLElement {
   return target instanceof HTMLElement;
 }
 
+function toElement(target: HTMLElement | HTMLDocument): HTMLElement {
+  return isDocument(target) ? target.documentElement : target;
+}
+
 export {
   isNodeName,
   isArrayLike,
@@ -49,4 +53,5 @@ export {
   isWindow,
   isDocument,
   isElement,
+  toElement,
 };

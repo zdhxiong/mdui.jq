@@ -168,11 +168,11 @@ each(['attr', 'prop', 'css'], (nameIndex, name) => {
         return;
       }
 
-      if (isFunction(value)) {
-        value = value.call(element, i, get(element, key));
-      }
-
-      set(element, key, value);
+      set(
+        element,
+        key,
+        isFunction(value) ? value.call(element, i, get(element, key)) : value,
+      );
     });
   };
 });

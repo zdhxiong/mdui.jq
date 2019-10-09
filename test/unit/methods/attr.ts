@@ -3,14 +3,15 @@ import $ from '../../jq_or_jquery';
 describe('.attr()', function() {
   beforeEach(function() {
     $('#test').html(`
-<div id="div" mdui="test" title="hello" label="world" meta="hhh"></div>
-<input id="checkbox" type="checkbox" checked="checked"/>
+<div id="div" mdui="test" title="hello" label="world" meta="hhh" hello="no"></div>
+<input id="checkbox" type="checkbox" checked="checked" hello="noo"/>
     `);
   });
 
   // 设置元素的属性
   it('.attr(name, value)', function() {
     const $div = $('#div');
+    const $checkbox = $('#checkbox');
 
     const $divResult = $div
       .attr('mdui', 'value')
@@ -24,11 +25,16 @@ describe('.attr()', function() {
     chai.assert.isUndefined($div.attr('title'));
     chai.assert.equal($div.attr('label'), 'world');
     chai.assert.isUndefined($div.attr('notfound'));
+
+    $div.add($checkbox).attr('hello', 'world');
+    chai.assert.equal($div.attr('hello'), 'world');
+    chai.assert.equal($checkbox.attr('hello'), 'world');
   });
 
   // 通过回调函数设置元素的属性
   it('.attr(name, callback)', function() {
     const $div = $('#div');
+    const $checkbox = $('#checkbox');
 
     const cbThis: HTMLElement[] = [];
     const cbIndex: number[] = [];
@@ -65,6 +71,12 @@ describe('.attr()', function() {
     chai.assert.equal($div.attr('title'), 'hello');
     chai.assert.equal($div.attr('label'), 'world');
     chai.assert.isUndefined($div.attr('notfound'));
+
+    $div.add($checkbox).attr('hello', function(_, oldAttr) {
+      return oldAttr + 'world';
+    });
+    chai.assert.equal($div.attr('hello'), 'noworld');
+    chai.assert.equal($checkbox.attr('hello'), 'nooworld');
   });
 
   // 同时设置多个属性
