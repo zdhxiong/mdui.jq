@@ -42,6 +42,10 @@ function toElement(target: HTMLElement | HTMLDocument): HTMLElement {
   return isDocument(target) ? target.documentElement : target;
 }
 
+function getComputedStyleValue(element: HTMLElement, name: string): string {
+  return window.getComputedStyle(element, null).getPropertyValue(name);
+}
+
 export {
   isNodeName,
   isArrayLike,
@@ -54,4 +58,5 @@ export {
   isDocument,
   isElement,
   toElement,
+  getComputedStyleValue,
 };

@@ -1,12 +1,12 @@
-import JQElement from '../types/JQElement';
-import JQSelector from '../types/JQSelector';
-import { isString } from '../utils';
-import { JQ } from '../JQ';
 import $ from '../$';
-import './eq';
-import './parent';
+import { JQ } from '../JQ';
+import JQElement from '../types/JQElement';
+import Selector from '../types/Selector';
+import { isString } from '../utils';
 import './children';
+import './eq';
 import './get';
+import './parent';
 
 declare module '../JQ' {
   interface JQ<T = JQElement> {
@@ -17,20 +17,27 @@ declare module '../JQ' {
      * 如果传入一个 JQ 对象，则返回 JQ 对象中第一个元素在当前对象中的索引值。
      * @param selector
      */
-    index(selector?: JQSelector): number;
+    index(selector?: Selector | HTMLElement | JQ): number;
   }
 }
 
-$.fn.index = function(this: JQ, selector?: JQSelector): number {
-  if (!selector || isString(selector)) {
-    return (selector ? $(selector) : this)
-      .eq(0)
+$.fn.index = function(
+  this: JQ,
+  selector?: Selector | HTMLElement | JQ,
+): number {
+  if (!arguments.length) {
+    return this.eq(0)
       .parent()
       .children()
       .get()
       .indexOf(this[0]);
   }
 
-  // 返回指定元素在当前 JQ 对象中的位置
-  return this.get().indexOf($(selector).get(0));
+  if (isString(selector)) {
+    return $(selector)
+      .get()
+      .indexOf(this[0] as HTMLElement);
+  }
+
+  return this.get().indexOf($(selector)[0]);
 };

@@ -7,36 +7,57 @@ describe('.filter()', function() {
 <div class="haha">b</div>
 <div class="haha">c</div>
 <div>d</div>
+<div>e</div>
     `);
   });
 
-  it('.filter(JQSelector): JQ', function() {
-    // $().filter('.haha')
-    let $ret = $('#test div').filter('.haha');
-    chai.assert.lengthOf($ret, 2);
-    chai.assert.equal($ret[0].innerHTML, 'b');
-    chai.assert.equal($ret[1].innerHTML, 'c');
+  it('.filter(selector)', function() {
+    const $divs = $('#test div');
 
-    // $().filter($('.haha'))
-    $ret = $('#test div').filter($('.haha'));
-    chai.assert.lengthOf($ret, 2);
-    chai.assert.equal($ret[0].innerHTML, 'b');
-    chai.assert.equal($ret[1].innerHTML, 'c');
+    // $().filter('.haha')
+    chai.assert.equal($divs.filter('.haha').text(), 'bc');
 
     // $().filter(element)
-    $ret = $('#test div').filter($('.haha').get(0));
-    chai.assert.lengthOf($ret, 1);
-    chai.assert.equal($ret[0].innerHTML, 'b');
+    chai.assert.equal($divs.filter($('.haha')[0]).text(), 'b');
+
+    // $().filter(elements)
+    chai.assert.equal($divs.filter($('.haha').get()).text(), 'bc');
+
+    // $().filter($('.haha'))
+    chai.assert.equal($divs.filter($('.haha')).text(), 'bc');
+
+    // 动态生成的元素
+    chai.assert.equal(
+      $('<div id="d1">d1</div><div id="d2">d2</div>')
+        .filter('#d2')
+        .text(),
+      'd2',
+    );
   });
 
-  it('.filter(callback): JQ', function() {
+  it('.filter(callback)', function() {
+    const $divs = $('#test div');
+
+    // 测试函数参数和 this 指向
+    const _thiss: HTMLElement[] = [];
+    const _indexs: number[] = [];
+    const _elements: HTMLElement[] = [];
+    $divs.filter(function(index, element) {
+      _thiss.push(this);
+      _indexs.push(index);
+      _elements.push(element);
+
+      return false;
+    });
+    chai.assert.sameOrderedMembers(_thiss, $divs.get());
+    chai.assert.sameOrderedMembers(_indexs, [0, 1, 2, 3, 4]);
+    chai.assert.sameOrderedMembers(_elements, $divs.get());
+
     // $().filter(function (index) {})
     let $ret = $('#test div').filter(function(index) {
       return index === 0 || index === 3;
     });
-    chai.assert.lengthOf($ret, 2);
-    chai.assert.equal($ret[0].innerHTML, 'a');
-    chai.assert.equal($ret[1].innerHTML, 'd');
+    chai.assert.equal($ret.text(), 'ad');
 
     // $().filter(function (index, element) {})
     $ret = $('#test div').filter(function(index, element) {
@@ -45,8 +66,14 @@ describe('.filter()', function() {
 
       return element.innerHTML === 'd';
     });
-    chai.assert.lengthOf($ret, 2);
-    chai.assert.equal($ret[0].innerHTML, 'c');
-    chai.assert.equal($ret[1].innerHTML, 'd');
+    chai.assert.equal($ret.text(), 'cd');
+
+    // 动态生成的元素
+    chai.assert.equal(
+      $('<div id="d1">d1</div><div id="d2">d2</div>')
+        .filter(index => index === 1)
+        .text(),
+      'd2',
+    );
   });
 });

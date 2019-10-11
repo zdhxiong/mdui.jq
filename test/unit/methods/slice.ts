@@ -7,20 +7,25 @@ describe('.slice()', function() {
 <div>b</div>
 <div>c</div>
 <div>d</div>
+<div>e</div>
     `);
   });
 
   it('.slice(start: number, end?: number): JQ', function() {
-    // $().slice(start)
-    let $ret = $('#test div').slice(2);
-    chai.assert.lengthOf($ret, 2);
-    chai.assert.equal($ret.eq(0).html(), 'c');
-    chai.assert.equal($ret.eq(1).html(), 'd');
+    const $divs = $('#test div');
+    const $ret = $divs.slice(2);
 
-    // $().slice(start, end)
-    $ret = $('#test div').slice(1, 3);
-    chai.assert.lengthOf($ret, 2);
-    chai.assert.equal($ret.eq(0).html(), 'b');
-    chai.assert.equal($ret.eq(1).html(), 'c');
+    chai.assert.lengthOf($ret, 3);
+    chai.assert.deepEqual($ret[0], $('#test div').get(2));
+    chai.assert.deepEqual($ret[1], $('#test div').get(3));
+    chai.assert.deepEqual($ret[2], $('#test div').get(4));
+    chai.assert.equal($ret.text(), 'cde');
+
+    chai.assert.equal($divs.slice(2, 4).text(), 'cd');
+    chai.assert.equal($divs.slice(-2).text(), 'de');
+    chai.assert.equal($divs.slice(-2, -1).text(), 'd');
+    chai.assert.equal($divs.slice(2, -1).text(), 'cd');
+    chai.assert.equal($divs.slice(0, 1).text(), 'a');
+    chai.assert.equal($divs.slice(0, 2).text(), 'ab');
   });
 });

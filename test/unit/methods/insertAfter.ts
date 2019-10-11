@@ -1,4 +1,4 @@
-import $ from '../../../es/index';
+import $ from '../../jq_or_jquery';
 
 describe('.insertAfter()', function() {
   it('.insertAfter(JQSelector): jQ', function() {

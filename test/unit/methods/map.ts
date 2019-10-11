@@ -10,28 +10,38 @@ describe('.map()', function() {
     `);
   });
 
-  it('.map(callback): JQ', function() {
-    const _thiss: string[] = [];
-    const ids: number[] = [];
-    const items: string[] = [];
+  it('.map(callback)', function() {
+    const $divs = $('#test div');
 
-    const $ret = $('#test div').map(function(i, item) {
-      _thiss.push(this.innerHTML);
-      ids.push(i);
-      items.push(item.innerHTML);
+    const _thiss: HTMLElement[] = [];
+    const _indexs: number[] = [];
+    const _elements: HTMLElement[] = [];
+
+    const ret = $divs.map(function(i, element) {
+      _thiss.push(this);
+      _indexs.push(i);
+      _elements.push(element);
 
       // null 和 undefined 会被过滤
       if (i === 1) return null;
       if (i === 2) return undefined;
 
-      return item;
+      return element;
     });
 
-    chai.assert.lengthOf($ret, 2);
-    chai.assert.equal($ret[0].innerHTML, 'a');
-    chai.assert.equal($ret[1].innerHTML, 'd');
-    chai.assert.sameOrderedMembers(_thiss, ['a', 'b', 'c', 'd']);
-    chai.assert.sameOrderedMembers(ids, [0, 1, 2, 3]);
-    chai.assert.sameOrderedMembers(items, ['a', 'b', 'c', 'd']);
+    chai.assert.sameOrderedMembers(_thiss, $divs.get());
+    chai.assert.sameOrderedMembers(_indexs, [0, 1, 2, 3]);
+    chai.assert.sameOrderedMembers(_elements, $divs.get());
+    chai.assert.lengthOf(ret, 2);
+    chai.assert.equal(ret.text(), 'ad');
+
+    // 返回 index
+    /* ret = $divs
+      .map(function(index) {
+        return index;
+      })
+      .get()
+      .join(',');
+    chai.assert.equal(ret, '0,1,2,3'); */
   });
 });

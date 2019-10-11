@@ -1,10 +1,11 @@
-import JQElement from '../types/JQElement';
-import JQSelector from '../types/JQSelector';
-import { isFunction } from '../utils';
-import { JQ } from '../JQ';
 import $ from '../$';
-import './map';
+import { JQ } from '../JQ';
+import JQElement from '../types/JQElement';
+import Selector from '../types/Selector';
+import { isFunction, isString } from '../utils';
 import './index';
+import './map';
+import './is';
 
 declare module '../JQ' {
   interface JQ<T = JQElement> {
@@ -24,7 +25,12 @@ $('#select option').filter(function (idx, element) {
 ```
      */
     filter(
-      selector: JQSelector | ((this: T, index: number, element: T) => boolean),
+      selector:
+        | Selector
+        | HTMLElement
+        | ArrayLike<HTMLElement>
+        | JQ
+        | ((this: T, index: number, element: T) => boolean),
     ): this;
   }
 }
@@ -36,9 +42,15 @@ $.fn.filter = function(this: JQ, selector: any): JQ {
     );
   }
 
+  if (isString(selector)) {
+    return this.map((_, element) =>
+      $(element).is(selector) ? element : undefined,
+    );
+  }
+
   const $selector = $(selector);
 
   return this.map((_, element) =>
-    $selector.index(element) > -1 ? element : undefined,
+    $selector.index(element as HTMLElement) > -1 ? element : undefined,
   );
 };

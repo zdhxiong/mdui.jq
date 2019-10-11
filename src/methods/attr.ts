@@ -9,6 +9,7 @@ import {
   isNull,
   isObjectLike,
   isUndefined,
+  getComputedStyleValue,
 } from '../utils';
 import './each';
 
@@ -139,7 +140,7 @@ each(['attr', 'prop', 'css'], (nameIndex, name) => {
 
       // css
       default:
-        return window.getComputedStyle(element, null).getPropertyValue(key);
+        return getComputedStyleValue(element, key);
     }
   }
 
