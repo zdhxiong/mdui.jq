@@ -1,4 +1,4 @@
-import JQ from '../es/index';
+import JQ from '../src/index';
 import { JQStatic } from '../es/interfaces/JQStatic';
 
 const $ = typeof jQuery !== 'undefined' ? jQuery : JQ;

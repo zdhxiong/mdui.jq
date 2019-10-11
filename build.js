@@ -107,7 +107,10 @@ async function test() {
       buble(),
     ],
     watch: {
-      include: './test/unit/**/*'
+      include: [
+        './test/unit/**/*',
+         './src/**/*',
+      ]
     }
   });
 
