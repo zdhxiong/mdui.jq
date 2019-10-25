@@ -1,4 +1,5 @@
 import $ from '../../jq_or_jquery';
+import { toTagNameArray } from '../../utils';
 
 describe('.add()', function() {
   beforeEach(function() {
@@ -20,14 +21,14 @@ describe('.add()', function() {
       .add($('#test span')) // JQ 对象
       .add('<label>test</label>') // HTML 字符串
       .css('background-color', 'red');
-
-    chai.assert.lengthOf($selected, 6);
-    chai.assert.instanceOf($selected[0], HTMLLIElement);
-    chai.assert.instanceOf($selected[1], HTMLLIElement);
-    chai.assert.instanceOf($selected[2], HTMLParagraphElement);
-    chai.assert.instanceOf($selected[3], HTMLDivElement);
-    chai.assert.instanceOf($selected[4], HTMLSpanElement);
-    chai.assert.instanceOf($selected[5], HTMLLabelElement);
+    chai.assert.sameOrderedMembers(toTagNameArray($selected), [
+      'li',
+      'li',
+      'p',
+      'div',
+      'span',
+      'label',
+    ]);
 
     $selected.each(function() {
       chai.assert.equal(this.style.backgroundColor, 'red');

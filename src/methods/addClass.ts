@@ -1,13 +1,12 @@
 import $ from '../$';
 import each from '../functions/each';
 import { JQ } from '../JQ';
-import JQElement from '../types/JQElement';
 import { isElement, isFunction } from '../utils';
 import './attr';
 import './each';
 
 declare module '../JQ' {
-  interface JQ<T = JQElement> {
+  interface JQ<T = HTMLElement> {
     /**
      * 添加 CSS 类，多个类名用空格分割
      * @param className
@@ -29,11 +28,7 @@ $('p').addClass(function () {
     addClass(
       className:
         | string
-        | ((
-            this: HTMLElement,
-            index: number,
-            currentClassName: string,
-          ) => string),
+        | ((this: T, index: number, currentClassName: string) => string),
     ): this;
   }
 }
@@ -45,11 +40,7 @@ each(['add', 'remove', 'toggle'], (_, name: classListMethod) => {
     this: JQ,
     className:
       | string
-      | ((
-          this: HTMLElement,
-          index: number,
-          currentClassName: string,
-        ) => string),
+      | ((this: any, index: number, currentClassName: string) => string),
   ): JQ {
     if (name === 'remove' && !arguments.length) {
       return this.attr('class', '');

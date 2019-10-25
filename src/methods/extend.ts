@@ -1,11 +1,10 @@
-import JQElement from '../types/JQElement';
-import PlainObject from '../interfaces/PlainObject';
-import { JQ } from '../JQ';
 import $ from '../$';
 import each from '../functions/each';
+import PlainObject from '../interfaces/PlainObject';
+import { JQ } from '../JQ';
 
 declare module '../JQ' {
-  interface JQ<T = JQElement> {
+  interface JQ<T = HTMLElement> {
     /**
      * 在 $ 的原型链上扩展方法
      * @param obj

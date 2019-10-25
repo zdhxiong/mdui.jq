@@ -107,6 +107,7 @@ async function test() {
       buble(),
     ],
     watch: {
+      clearScreen: true,
       include: [
         './test/unit/**/*',
          './src/**/*',

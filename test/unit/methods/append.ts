@@ -1,103 +1,189 @@
 import $ from '../../jq_or_jquery';
+import {
+  toClassNameArray,
+  toTagNameArray,
+  toInnerTextArray,
+  removeSpace,
+  toInnerHtmlArray,
+} from '../../utils';
 
 describe('.append()', function() {
-  // 在选中元素内部的后面添加内容
-  it('.append(JQSelector): JQ', function() {
-    const $test = $('#test');
+  beforeEach(function() {
+    $('#test').html(`
+<h2>Greetings</h2>
+<div class="container">
+  <div class="inner">Hello</div>
+  <div class="inner">Goodbye</div>
+</div>
+    `);
+  });
 
-    // 追加纯文
-    $test.html('<p class="first">first</p>');
-    $('.first').append('dd');
-    chai.assert.equal($test.html(), '<p class="first">firstdd</p>');
+  it('.append(html)', function() {
+    // 单个现有元素中添加html
+    const $result = $('.container').append('<p>test</p>');
+    chai.assert.sameOrderedMembers(toClassNameArray($result), ['container']);
 
-    // 追加 HTML
-    $test.html('<p class="first">first</p>');
-    $('.first').append('<i>icon</i>' + '<i>icon2</i>');
+    const $children = $('.container').children();
+    chai.assert.sameOrderedMembers(toTagNameArray($children), [
+      'div',
+      'div',
+      'p',
+    ]);
+  });
+
+  it('.append(html)', function() {
+    // 空元素中添加html
+    $('#test').html(`
+<div class="container">
+  <div class="inner"></div>
+  <div class="inner"></div>
+</div>
+    `);
+
+    $('.inner').append('<p>new1</p><span>new2</span>');
+
+    const html = $('.container').html();
     chai.assert.equal(
-      $test.html(),
-      '<p class="first">first<i>icon</i><i>icon2</i></p>',
+      removeSpace(html),
+      '<divclass="inner"><p>new1</p><span>new2</span></div><divclass="inner"><p>new1</p><span>new2</span></div>',
     );
+  });
 
-    // 同时追加纯文本和 HTML
-    $test.html('<p class="first">first</p>');
-    $('.first').append('dd<i>icon</i><i>icon2</i>');
-    chai.assert.equal(
-      $test.html(),
-      '<p class="first">firstdd<i>icon</i><i>icon2</i></p>',
-    );
+  it('.append(html, html)', function() {
+    // 单个元素中添加多个 html
+    $('.container').append('<p>test1</p><p>test2</p>');
 
-    // 特殊标签中追加 HTML
-    $test.html('<table>' + '<tbody class="first"></tbody>' + '</table>');
-    $('.first').append('<tr><td>11</td></tr>');
-    chai.assert.equal(
-      $test.html(),
-      '<table>' +
-        '<tbody class="first">' +
-        '<tr><td>11</td></tr>' +
-        '</tbody>' +
-        '</table>',
-    );
+    const $children = $('.container').children();
+    chai.assert.sameOrderedMembers(toInnerTextArray($children), [
+      'Hello',
+      'Goodbye',
+      'test1',
+      'test2',
+    ]);
+  });
 
-    // 追加 JQ 对象
-    $test.html(
-      '<p class="first">first1</p>' +
-        '<p class="second">second</p>' +
-        '<p class="first">first2</p>',
-    );
-    $('.second').append($('.first'));
-    chai.assert.equal(
-      $test.html(),
-      '<p class="second">second<p class="first">first1</p><p class="first">first2</p></p>',
-    );
+  it('.append(text, html)', function() {
+    // 单个元素中添加多个纯文本和 html
+    $('.container').append('plain-text', '<p>html</p>');
 
-    $test.html(
-      '<p class="first">first1</p>' +
-        '<p class="second">second1</p>' +
-        '<p class="first">first2</p>' +
-        '<p class="second">second2</p>',
-    );
-    $('.second').append($('.first'));
     chai.assert.equal(
-      $test.html(),
-      '<p class="second">second1<p class="first">first1</p><p class="first">first2</p></p>' +
-        '<p class="second">second2<p class="first">first1</p><p class="first">first2</p></p>',
+      removeSpace($('.container').text()),
+      'HelloGoodbyeplain-texthtml',
     );
+  });
 
-    // 追加 DOM 元素
-    $test.html(
-      '<p class="first">first</p>' +
-        '<p class="second">second1</p>' +
-        '<p class="second">second2</p>',
-    );
-    $('.first').append($('.second')[0]);
-    chai.assert.equal(
-      $test.html(),
-      '<p class="first">first<p class="second">second1</p></p>' +
-        '<p class="second">second2</p>',
-    );
+  it('.apend(text)', function() {
+    // 单个元素中添加纯文本
+    $('.container').append('text');
 
-    // 追加 DOM 数组
-    $test.html(
-      '<p class="first">first</p>' +
-        '<p class="second">second1</p>' +
-        '<p class="second">second2</p>',
-    );
-    $('.first').append($('.second').get());
-    chai.assert.equal(
-      $test.html(),
-      '<p class="first">first<p class="second">second1</p><p class="second">second2</p></p>',
-    );
+    chai.assert.equal(removeSpace($('.container').text()), 'HelloGoodbyetext');
+  });
 
-    // 追加 NodeList
-    $test.html(
-      '<p class="first">first</p>' +
-        '<p class="second">second1</p>' +
-        '<p class="second">second2</p>',
-    );
-    $('.first').append(document.querySelectorAll('.second'));
+  it('.append(text)', function() {
+    // 新建元素，并添加一些元素，然后追加到现有元素中
+    $('<p>test</p>')
+      .append(' new')
+      .appendTo('.container');
+
+    const $children = $('.container').children();
+    chai.assert.sameOrderedMembers(toTagNameArray($children), [
+      'div',
+      'div',
+      'p',
+    ]);
+    chai.assert.sameOrderedMembers(toInnerTextArray($children), [
+      'Hello',
+      'Goodbye',
+      'test new',
+    ]);
+  });
+
+  it('.append(text, html)', function() {
+    // 多个元素中添加多个纯文本和html
+    const $result = $('.inner').append('plain-text', '<p>html</p>');
+    chai.assert.sameOrderedMembers(toInnerHtmlArray($result), [
+      'Helloplain-text<p>html</p>',
+      'Goodbyeplain-text<p>html</p>',
+    ]);
+
+    const $children = $('.container').children();
+    chai.assert.sameOrderedMembers(toInnerHtmlArray($children), [
+      'Helloplain-text<p>html</p>',
+      'Goodbyeplain-text<p>html</p>',
+    ]);
+  });
+
+  it('.append(element)', function() {
+    // 单个元素中添加已有元素
+    $('.container .inner:first-child').append($('#test h2'));
+
+    const $testChildren = $('#test').children();
+    const $containerChildren = $('.container').children();
+
+    chai.assert.sameOrderedMembers(toTagNameArray($testChildren), ['div']);
+    chai.assert.sameOrderedMembers(toTagNameArray($containerChildren), [
+      'div',
+      'div',
+    ]);
+    chai.assert.sameOrderedMembers(toInnerHtmlArray($containerChildren), [
+      'Hello<h2>Greetings</h2>',
+      'Goodbye',
+    ]);
+  });
+
+  it('.append(element, element)', function() {
+    // 多个元素中添加已有元素
+    $('#test').html(`
+<h2>Greetings</h2>
+<div class="container">
+  <div class="inner">Hello</div>
+  <div class="inner">Goodbye</div>
+</div>
+<span>test</span>
+    `);
+
+    $('.container .inner').append($('#test h2, #test span'));
+
+    const $testChildren = $('#test').children();
+    const $containerChildren = $('.container').children();
+
+    chai.assert.sameOrderedMembers(toTagNameArray($testChildren), ['div']);
+    chai.assert.sameOrderedMembers(toTagNameArray($containerChildren), [
+      'div',
+      'div',
+    ]);
+    chai.assert.sameOrderedMembers(toInnerHtmlArray($containerChildren), [
+      'Hello<h2>Greetings</h2><span>test</span>',
+      'Goodbye<h2>Greetings</h2><span>test</span>',
+    ]);
+  });
+
+  it('.append(tr)', function() {
+    // 添加特殊元素
+    $('#test').html(`
+<table>
+  <tbody>
+  </tbody>
+</table>
+    `);
+
+    $('#test tbody').append('<tr><td>11</td></tr>');
+
     chai.assert.equal(
-      $test.html(),
-      '<p class="first">first<p class="second">second1</p><p class="second">second2</p></p>',
+      removeSpace($('#test').html()),
+      '<table><tbody><tr><td>11</td></tr></tbody></table>',
+    );
+  });
+
+  // 通过回调函数返回文本和html
+  it('.append(callback)', function() {
+    $('.inner').append(function(index, oldHtml) {
+      return `${this.innerHTML}${index}<span>${oldHtml}</span>`;
+    });
+
+    chai.assert.equal(
+      removeSpace($('.container').html()),
+      '<divclass="inner">HelloHello0<span>Hello</span></div><divclass="inner">GoodbyeGoodbye1<span>Goodbye</span></div>',
     );
   });
 });

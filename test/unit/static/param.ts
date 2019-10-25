@@ -35,5 +35,15 @@ describe('$.param', function() {
       'a=a+b&b=b c',
     );
   });
+
+  it('$.param(array)', function() {
+    chai.assert.equal(
+      $.param([
+        { name: 'key1', value: 'val1' },
+        { name: 'key2', value: 'val2' },
+      ]),
+      'key1=val1&key2=val2',
+    );
+  });
 });
 //# sourceMappingURL=param.js.map

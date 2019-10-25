@@ -2,19 +2,21 @@ import $ from '../$';
 import each from '../functions/each';
 import PlainObject from '../interfaces/PlainObject';
 import { JQ } from '../JQ';
-import JQElement from '../types/JQElement';
 import {
+  cssNumber,
+  getComputedStyleValue,
   isElement,
   isFunction,
   isNull,
+  isNumber,
   isObjectLike,
   isUndefined,
-  getComputedStyleValue,
+  toCamelCase,
 } from '../utils';
 import './each';
 
 declare module '../JQ' {
-  interface JQ<T = JQElement> {
+  interface JQ<T = HTMLElement> {
     /**
      * 设置元素的属性
      * 如果为 null，则删除指定属性
@@ -40,7 +42,7 @@ $('img').attr('src', function() {
         | null
         | undefined
         | ((
-            this: HTMLElement,
+            this: T,
             index: number,
             oldAttrValue: string,
           ) => string | number | null | void | undefined),
@@ -75,7 +77,7 @@ $('img').attr({
         | null
         | undefined
         | ((
-            this: HTMLElement,
+            this: T,
             index: number,
             oldAttrValue: string,
           ) => string | number | null | void | undefined)
@@ -119,8 +121,12 @@ each(['attr', 'prop', 'css'], (nameIndex, name) => {
 
       // css
       default:
+        key = toCamelCase(key);
+
         // @ts-ignore
-        element.style[key] = value;
+        element.style[key] = isNumber(value)
+          ? `${value}${cssNumber.indexOf(key) > -1 ? '' : 'px'}`
+          : value;
         break;
     }
   }
@@ -144,11 +150,7 @@ each(['attr', 'prop', 'css'], (nameIndex, name) => {
     }
   }
 
-  $.fn[name] = function<T extends JQElement>(
-    this: JQ<T>,
-    key: string | PlainObject,
-    value?: any,
-  ): any {
+  $.fn[name] = function(this: JQ, key: string | PlainObject, value?: any): any {
     if (isObjectLike(key)) {
       each(key, (k, v) => {
         // @ts-ignore
@@ -165,10 +167,6 @@ each(['attr', 'prop', 'css'], (nameIndex, name) => {
     }
 
     return this.each((i, element) => {
-      if (!isElement(element)) {
-        return;
-      }
-
       set(
         element,
         key,

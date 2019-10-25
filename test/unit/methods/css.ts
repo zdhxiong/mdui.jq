@@ -14,12 +14,16 @@ describe('.css()', function() {
     const $divResult = $div
       .css('width', '200px')
       .css('line-height', '20px')
-      .css('font-size', undefined);
+      .css('font-size', undefined)
+      .css('height', 50)
+      .css('opacity', 0.6);
 
     chai.assert.deepEqual($divResult, $div);
     chai.assert.equal($div.css('width'), '200px');
     chai.assert.equal($div.css('line-height'), '20px');
     chai.assert.equal($div.css('font-size'), '20px');
+    chai.assert.equal($div.css('height'), '50px');
+    chai.assert.equal($div.css('opacity'), '0.6');
   });
 
   // 通过回调函数设置元素的样式
@@ -43,6 +47,12 @@ describe('.css()', function() {
       })
       .css('font-size', function() {
         return undefined;
+      })
+      .css('height', function() {
+        return 50;
+      })
+      .css('opacity', function() {
+        return 0.6;
       });
 
     chai.assert.deepEqual($divResult, $div);
@@ -52,7 +62,8 @@ describe('.css()', function() {
     chai.assert.equal($div.css('width'), '100px');
     chai.assert.equal($div.css('line-height'), '20px');
     chai.assert.equal($div.css('font-size'), '20px');
-    chai.assert.equal($div.css('height'), '100px');
+    chai.assert.equal($div.css('height'), '50px');
+    chai.assert.equal($div.css('opacity'), '0.6');
   });
 
   // 同时设置多个样式
@@ -63,12 +74,16 @@ describe('.css()', function() {
       width: '200px',
       lineHeight: '20px',
       fontSize: undefined,
+      height: 50,
+      opacity: 0.6,
     });
 
     chai.assert.deepEqual($divResult, $div);
     chai.assert.equal($div.css('width'), '200px');
     chai.assert.equal($div.css('line-height'), '20px');
     chai.assert.equal($div.css('font-size'), '20px');
+    chai.assert.equal($div.css('height'), '50px');
+    chai.assert.equal($div.css('opacity'), '0.6');
   });
 
   // 通过回调函数同时设置多个样式
@@ -93,6 +108,12 @@ describe('.css()', function() {
       'font-size': function() {
         return undefined;
       },
+      height: function() {
+        return 50;
+      },
+      opacity: function() {
+        return 0.6;
+      },
     });
 
     chai.assert.deepEqual($divResult, $div);
@@ -102,7 +123,8 @@ describe('.css()', function() {
     chai.assert.equal($div.css('width'), '100px');
     chai.assert.equal($div.css('line-height'), '20px');
     chai.assert.equal($div.css('font-size'), '20px');
-    chai.assert.equal($div.css('height'), '100px');
+    chai.assert.equal($div.css('height'), '50px');
+    chai.assert.equal($div.css('opacity'), '0.6');
   });
 
   // 获取第一个元素的样式

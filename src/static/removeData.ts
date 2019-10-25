@@ -1,4 +1,3 @@
-import JQElement from '../types/JQElement';
 import $ from '../$';
 import removeData from '../functions/removeData';
 
@@ -23,7 +22,7 @@ if (element) {
 }
 ```
      */
-    removeData(element: JQElement, name?: string): void;
+    removeData(element: Element | Document | Window, name?: string): void;
   }
 }
 

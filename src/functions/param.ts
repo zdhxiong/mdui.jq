@@ -1,9 +1,10 @@
-import { isObjectLike, isNull, isUndefined } from '../utils';
-import each from './each';
 import PlainObject from '../interfaces/PlainObject';
+import { isObjectLike } from '../utils';
+import each from './each';
 
 /**
  * 将对象序列化，序列化后的字符串可作为 URL 查询字符串使用
+ * 若传入数组，则格式必须和 serializeArray 方法的返回值一样
  * @param obj 对象
  * @example
 ```js
@@ -19,8 +20,8 @@ param( { ids: [1, 2, 3] } )
 // ids[]=1&ids[]=2&ids[]=3
 ```
  */
-function param(obj: PlainObject): string {
-  if (!isObjectLike(obj)) {
+function param(obj: any[] | PlainObject): string {
+  if (!isObjectLike(obj) && !Array.isArray(obj)) {
     return '';
   }
 
@@ -40,7 +41,7 @@ function param(obj: PlainObject): string {
         destructure(`${key}[${keyTmp}]`, v);
       });
     } else {
-      if (isNull(value) || isUndefined(value) || value === '') {
+      if (value == null || value === '') {
         keyTmp = '=';
       } else {
         keyTmp = `=${encodeURIComponent(value)}`;
@@ -50,7 +51,13 @@ function param(obj: PlainObject): string {
     }
   }
 
-  each(obj, destructure);
+  if (Array.isArray(obj)) {
+    each(obj, function() {
+      destructure(this.name, this.value);
+    });
+  } else {
+    each(obj, destructure);
+  }
 
   return args.join('&');
 }

@@ -3,22 +3,27 @@ import $ from '../../jq_or_jquery';
 describe('.offsetParent()', function() {
   beforeEach(function() {
     $('#test').html(`
-<div id="child1">
-  <div id="child2" style="position: absolute;">
-    <div id="child3">
-      <div id="child4"></div>
-    </div>
-  </div>
-</div>
+<ul class="level-1">
+  <li class="item-ii" style="position: relative;">II
+    <ul class="level-2">
+      <li class="item-a">A</li>
+    </ul>
+  </li>
+  <li class="item-ii" style="position: relative;">II
+    <ul class="level-2">
+      <li class="item-a">A</li>
+    </ul>
+  </li>
+</ul>
     `);
   });
 
-  it('.offsetParent(): JQ', function() {
-    chai.assert.equal(
-      $('#child4')
+  it('.offsetParent()', function() {
+    chai.assert.sameOrderedMembers(
+      $('.item-a')
         .offsetParent()
-        .get(0),
-      $('#child2').get(0),
+        .get(),
+      $('.item-ii').get(),
     );
   });
 });

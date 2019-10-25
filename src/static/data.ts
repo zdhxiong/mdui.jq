@@ -1,7 +1,6 @@
-import JQElement from '../types/JQElement';
-import PlainObject from '../interfaces/PlainObject';
 import $ from '../$';
 import data from '../functions/data';
+import PlainObject from '../interfaces/PlainObject';
 
 declare module '../interfaces/JQStatic' {
   interface JQStatic {
@@ -16,7 +15,11 @@ data(document.body, 'type', undefined)
 // 'image'
 ```
      */
-    data(element: JQElement, key: string, value: undefined): any;
+    data(
+      element: Element | Document | Window,
+      key: string,
+      value: undefined,
+    ): any;
 
     /**
      * 在指定元素上存储数据，返回设置的值
@@ -29,7 +32,7 @@ data(document.body, 'type', 'image')
 // 'image'
 ```
      */
-    data<T>(element: JQElement, key: string, value: T): T;
+    data<T>(element: Element | Document | Window, key: string, value: T): T;
 
     /**
      * 获取在指定元素上存储的指定键名对应的值
@@ -41,7 +44,7 @@ data(document.body, 'height')
 // 680
 ```
      */
-    data(element: JQElement, key: string): any;
+    data(element: Element | Document | Window, key: string): any;
 
     /**
      * 获取指定元素上存储的所有数据
@@ -52,7 +55,7 @@ data(document.body)
 // { 'type': 'image', 'width': 1020, 'height': 680 }
 ```
      */
-    data(element: JQElement): PlainObject;
+    data(element: Element | Document | Window): PlainObject;
 
     /**
      * 在指定元素上存储数据，返回设置的键值对数据
@@ -64,7 +67,10 @@ data(document.body, { 'width': 1020, 'height': 680 })
 // { 'width': 1020, 'height': 680 }
 ```
      */
-    data<T extends PlainObject>(element: JQElement, data: T): T;
+    data<T extends PlainObject>(
+      element: Element | Document | Window,
+      data: T,
+    ): T;
   }
 }
 

@@ -1,9 +1,8 @@
 import PlainObject from '../interfaces/PlainObject';
-import JQElement from '../types/JQElement';
 import './attr';
 
 declare module '../JQ' {
-  interface JQ<T = JQElement> {
+  interface JQ<T = HTMLElement> {
     /**
      * 设置元素的样式
      * 如果值为 void 或 undefined，则不修改当前样式
@@ -27,7 +26,7 @@ $('#box').css('color', function () {
         | number
         | undefined
         | ((
-            this: HTMLElement,
+            this: T,
             index: number,
             oldCssValue: string,
           ) => string | number | void | undefined),
@@ -59,7 +58,7 @@ $('#box').css({
         | number
         | undefined
         | ((
-            this: HTMLElement,
+            this: T,
             index: number,
             oldCssValue: string,
           ) => string | number | void | undefined)
@@ -74,6 +73,6 @@ $('#box').css({
 $('#box').css('color')
 ```
      */
-    css(name: string): string | undefined;
+    css(name: string): string;
   }
 }

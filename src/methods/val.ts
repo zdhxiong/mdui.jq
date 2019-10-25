@@ -2,13 +2,12 @@ import $ from '../$';
 import each from '../functions/each';
 import map from '../functions/map';
 import { JQ } from '../JQ';
-import JQElement from '../types/JQElement';
 import { isElement, isFunction, isUndefined, toElement } from '../utils';
 import './each';
 import './is';
 
 declare module '../JQ' {
-  interface JQ<T = JQElement> {
+  interface JQ<T = HTMLElement> {
     /**
      * 设置当前元素的值
      * @param value
@@ -24,7 +23,7 @@ $('#input').val('input value')
         | string[]
         | undefined
         | ((
-            this: HTMLElement,
+            this: T,
             inDex: number,
             oldValue: string | number | string[],
           ) => string | number | string[] | void | undefined),
@@ -97,16 +96,12 @@ each(['val', 'html', 'text'], (nameIndex, name) => {
 
   $.fn[name] = function(this: JQ, value?: any): any {
     // 获取值
-    if (arguments.length === 0) {
+    if (!arguments.length) {
       return get(this);
     }
 
     // 设置值
     return this.each((i, element) => {
-      if (!isElement(element)) {
-        return;
-      }
-
       const computedValue = isFunction(value)
         ? value.call(element, i, get($(element)))
         : value;

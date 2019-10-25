@@ -1,9 +1,8 @@
 import PlainObject from '../interfaces/PlainObject';
-import JQElement from '../types/JQElement';
 import './attr';
 
 declare module '../JQ' {
-  interface JQ<T = JQElement> {
+  interface JQ<T = HTMLElement> {
     /**
      * 设置元素属性
      * 如果值为 void 或 undefined，则不修改当前属性
@@ -31,7 +30,7 @@ $('input').prop('checked', function () {
         | null
         | undefined
         | ((
-            this: HTMLElement,
+            this: T,
             index: number,
             oldPropValue: any,
           ) =>
@@ -76,7 +75,7 @@ $('input').prop({
         | null
         | undefined
         | ((
-            this: HTMLElement,
+            this: T,
             index: number,
             oldPropValue: any,
           ) =>

@@ -1,50 +1,49 @@
 import $ from '../../jq_or_jquery';
+import { JQ } from '../../../src/JQ';
 
 describe('.next()', function() {
   beforeEach(function() {
     $('#test').html(`
-<p id="test1">test1</p>
-<div id="test2">test2</div>
-<p id="test3">test3</p>
+<p id="test1">a</p>
+<div id="test2">b</div>
+<p id="test3">c</p>
 <div id="wrap">
-  <p>test</p>
-  <div id="test4">test4</div>
-  <p id="test5">test5</p>
-  <p id="test6">test6</p>
+  <p>d</p>
+  <div id="test4">e</div>
+  <p id="test5">f</p>
+  <p id="test6">g</p>
 </div>
 <div class="parent">
-  <div id="child1-1" class="child"></div>
-  <div id="child1-2" class="child"></div>
+  <div id="child1-1" class="child">h</div>
+  <div id="child1-2" class="child">i</div>
 </div>
 <div class="parent">
-  <div id="child2-1" class="child"></div>
-  <div id="child2-2" class="child"></div>
+  <div id="child2-1" class="child">j</div>
+  <div id="child2-2" class="child">k</div>
 </div>
     `);
   });
 
-  it('.next(JQSelector): JQ', function() {
-    let $nexts = $('#test p').next();
-    chai.assert.lengthOf($nexts, 4);
-    chai.assert.isTrue($nexts.eq(0).is('#test2'));
-    chai.assert.isTrue($nexts.eq(1).is('#wrap'));
-    chai.assert.isTrue($nexts.eq(2).is('#test4'));
-    chai.assert.isTrue($nexts.eq(3).is('#test6'));
+  it('.next(selector)', function() {
+    function removeSpace($element: JQ<HTMLElement>): string {
+      return $element
+        .map((_, element) => element.innerText.trim().replace(/[\r\n]/g, ''))
+        .get()
+        .join('');
+    }
 
-    $nexts = $('#test4').next('#test6');
-    chai.assert.lengthOf($nexts, 0);
+    chai.assert.lengthOf($('#test p').next(), 4);
+    chai.assert.equal(removeSpace($('#test p').next()), 'bdefgeg');
 
-    $nexts = $('#test4').next('#test5');
-    chai.assert.lengthOf($nexts, 1);
-    chai.assert.isTrue($nexts.eq(0).is('#test5'));
+    chai.assert.lengthOf($('#test4').next('#test6'), 0);
 
-    $nexts = $('#test4').next();
-    chai.assert.lengthOf($nexts, 1);
-    chai.assert.isTrue($nexts.eq(0).is('#test5'));
+    chai.assert.lengthOf($('#test4').next('#test5'), 1);
+    chai.assert.equal(removeSpace($('#test4').next('#test5')), 'f');
 
-    $nexts = $('.child').next();
-    chai.assert.lengthOf($nexts, 2);
-    chai.assert.isTrue($nexts.eq(0).is('#child1-2'));
-    chai.assert.isTrue($nexts.eq(1).is('#child2-2'));
+    chai.assert.lengthOf($('#test4').next(), 1);
+    chai.assert.equal(removeSpace($('#test4').next()), 'f');
+
+    chai.assert.lengthOf($('.child').next(), 2);
+    chai.assert.equal(removeSpace($('.child').next()), 'ik');
   });
 });

@@ -1,8 +1,7 @@
 import './addClass';
-import JQElement from '../types/JQElement';
 
 declare module '../JQ' {
-  interface JQ<T = JQElement> {
+  interface JQ<T = HTMLElement> {
     /**
      * 元素上的 CSS 类，有则删除，无则添加。多个类名之间可以用空格分隔。
      * @param className
@@ -20,11 +19,7 @@ $('p').toggleClass(function () {
     toggleClass(
       className:
         | string
-        | ((
-            this: HTMLElement,
-            index: number,
-            currentClassName: string,
-          ) => string),
+        | ((this: T, index: number, currentClassName: string) => string),
     ): this;
   }
 }

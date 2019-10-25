@@ -1,13 +1,11 @@
 import $ from '../$';
 import { JQ } from '../JQ';
-import JQElement from '../types/JQElement';
 import Selector from '../types/Selector';
-import { isElement } from '../utils';
 import './each';
 import './is';
 
 declare module '../JQ' {
-  interface JQ<T = JQElement> {
+  interface JQ<T = HTMLElement> {
     /**
      * 从 DOM 中移除选中的元素
      * @example ````移除 DOM 中所有 p 元素
@@ -25,11 +23,7 @@ $('p').remove('.box')
 
 $.fn.remove = function(this: JQ, selector?: Selector): JQ {
   return this.each((_, element) => {
-    if (
-      isElement(element) &&
-      element.parentNode &&
-      (!selector || $(element).is(selector))
-    ) {
+    if (element.parentNode && (!selector || $(element).is(selector))) {
       element.parentNode.removeChild(element);
     }
   });

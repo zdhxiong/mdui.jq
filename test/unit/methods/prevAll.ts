@@ -1,4 +1,5 @@
 import $ from '../../jq_or_jquery';
+import { toIdArray } from '../../utils';
 
 describe('.prevAll()', function() {
   beforeEach(function() {
@@ -13,36 +14,35 @@ describe('.prevAll()', function() {
   <p id="test7">test7</p>
 </div>
 <div class="parent">
-  <div id="child1-1" class="child"></div>
+  <div id="child1-1" class="child first"></div>
   <div id="child1-2" class="child"></div>
   <div id="child1-3" class="child last"></div>
 </div>
 <div class="parent">
-  <div id="child2-1" class="child"></div>
+  <div id="child2-1" class="child first"></div>
   <div id="child2-2" class="child last"></div>
 </div>
     `);
   });
 
-  it('.prevAll(JQSelector): JQ', function() {
+  it('.prevAll(selector): ', function() {
     let $prevs = $('#test3').prevAll();
-    chai.assert.lengthOf($prevs, 2);
-    chai.assert.isTrue($prevs.eq(0).is('#test2'));
-    chai.assert.isTrue($prevs.eq(1).is('#test1'));
+    chai.assert.sameOrderedMembers(toIdArray($prevs), ['test2', 'test1']);
 
     $prevs = $('#test6').prevAll();
-    chai.assert.lengthOf($prevs, 2);
-    chai.assert.isTrue($prevs.eq(0).is('#test5'));
-    chai.assert.isTrue($prevs.eq(1).is('#test4'));
+    chai.assert.sameOrderedMembers(toIdArray($prevs), ['test5', 'test4']);
 
     $prevs = $('#test6').prevAll('#test4');
-    chai.assert.lengthOf($prevs, 1);
-    chai.assert.isTrue($prevs.eq(0).is('#test4'));
+    chai.assert.sameOrderedMembers(toIdArray($prevs), ['test4']);
 
-    $prevs = $('.last').prevAll('.child');
-    chai.assert.lengthOf($prevs, 3);
-    chai.assert.isTrue($prevs.eq(0).is('#child2-1'));
-    chai.assert.isTrue($prevs.eq(1).is('#child1-2'));
-    chai.assert.isTrue($prevs.eq(2).is('#child1-1'));
+    $prevs = $('.last').prevAll();
+    chai.assert.sameOrderedMembers(toIdArray($prevs), [
+      'child2-1',
+      'child1-2',
+      'child1-1',
+    ]);
+
+    $prevs = $('.last').prevAll('.first');
+    chai.assert.sameOrderedMembers(toIdArray($prevs), ['child2-1', 'child1-1']);
   });
 });

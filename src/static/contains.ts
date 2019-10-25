@@ -14,8 +14,8 @@ $.contains( document.body, document.documentElement ); // false
 ```
      */
     contains(
-      container: HTMLElement | HTMLDocument,
-      contains: HTMLElement | HTMLDocument,
+      container: Element | Document | null,
+      contains: Element | Document | null,
     ): boolean;
   }
 }

@@ -1,92 +1,31 @@
 import $ from '../../jq_or_jquery';
+import { toInnerHtmlArray } from '../../utils';
 
 describe('.prepend()', function() {
-  const $test = $('#test');
+  // append 中已做了测试，这里不多做测试
 
-  it('.prepend(JQSelector): JQ', function() {
-    // 前置纯文本
-    $test.html('<p class="first">first</p>');
-    $('.first').prepend('dd');
-    chai.assert.equal($test.html(), '<p class="first">ddfirst</p>');
+  beforeEach(function() {
+    $('#test').html(`
+<h2>Greetings</h2>
+<div class="container">
+  <div class="inner">Hello</div>
+  <div class="inner">Goodbye</div>
+</div>
+    `);
+  });
 
-    // 前置 HTML
-    $test.html('<p class="first">first</p>');
-    $('.first').prepend('<i>icon</i><i>icons</i>');
-    chai.assert.equal(
-      $test.html(),
-      '<p class="first"><i>icon</i><i>icons</i>first</p>',
-    );
+  it('.prepend(text, html)', function() {
+    // 多个元素中添加多个纯文本和html
+    const $result = $('.inner').prepend('plain-text', '<p>html</p>');
+    chai.assert.sameOrderedMembers(toInnerHtmlArray($result), [
+      'plain-text<p>html</p>Hello',
+      'plain-text<p>html</p>Goodbye',
+    ]);
 
-    // 前置 HTML 和纯文本
-    $test.html('<p class="first">first</p>');
-    $('.first').prepend('dd<i>icon</i><i>icons</i>');
-    chai.assert.equal(
-      $test.html(),
-      '<p class="first">dd<i>icon</i><i>icons</i>first</p>',
-    );
-
-    // 前置 JQ 对象
-    $test.html(
-      '<p class="first">first1</p>' +
-        '<p class="second">second</p>' +
-        '<p class="first">first2</p>',
-    );
-    $('.second').prepend($('.first'));
-    chai.assert.equal(
-      $test.html(),
-      '<p class="second">' +
-        '<p class="first">first1</p>' +
-        '<p class="first">first2</p>second</p>',
-    );
-
-    $test.html(
-      '<p class="first">first1</p>' +
-        '<p class="second">second1</p>' +
-        '<p class="first">first2</p>' +
-        '<p class="second">second2</p>',
-    );
-    $('.second').prepend($('.first'));
-    chai.assert.equal(
-      $test.html(),
-      '<p class="second"><p class="first">first1</p><p class="first">first2</p>second1</p>' +
-        '<p class="second"><p class="first">first1</p><p class="first">first2</p>second2</p>',
-    );
-
-    // 前置 DOM 元素
-    $test.html(
-      '<p class="first">first</p>' +
-        '<p class="second">second1</p>' +
-        '<p class="second">second2</p>',
-    );
-    $('.first').prepend($('.second')[0]);
-    chai.assert.equal(
-      $test.html(),
-      '<p class="first"><p class="second">second1</p>first</p>' +
-        '<p class="second">second2</p>',
-    );
-
-    // 前置 DOM 数组
-    $test.html(
-      '<p class="first">first</p>' +
-        '<p class="second">second1</p>' +
-        '<p class="second">second2</p>',
-    );
-    $('.first').prepend($('.second').get());
-    chai.assert.equal(
-      $test.html(),
-      '<p class="first"><p class="second">second1</p><p class="second">second2</p>first</p>',
-    );
-
-    // 前置 NodeList
-    $test.html(
-      '<p class="first">first</p>' +
-        '<p class="second">second1</p>' +
-        '<p class="second">second2</p>',
-    );
-    $('.first').prepend(document.querySelectorAll('.second'));
-    chai.assert.equal(
-      $test.html(),
-      '<p class="first"><p class="second">second1</p><p class="second">second2</p>first</p>',
-    );
+    const $children = $('.container').children();
+    chai.assert.sameOrderedMembers(toInnerHtmlArray($children), [
+      'plain-text<p>html</p>Hello',
+      'plain-text<p>html</p>Goodbye',
+    ]);
   });
 });

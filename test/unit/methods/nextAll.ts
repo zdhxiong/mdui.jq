@@ -23,7 +23,7 @@ describe('.nextAll()', function() {
     `);
   });
 
-  it('.nextAll(JQSelector): JQ', function() {
+  it('.nextAll(selector)', function() {
     let $nexts = $('#test1').nextAll();
     chai.assert.lengthOf($nexts, 2);
     chai.assert.isTrue($nexts.eq(0).is('#test2'));
@@ -42,5 +42,9 @@ describe('.nextAll()', function() {
     chai.assert.lengthOf($nexts, 2);
     chai.assert.isTrue($nexts.eq(0).is('#child1-2'));
     chai.assert.isTrue($nexts.eq(1).is('#child2-2'));
+
+    $nexts = $('.child').nextAll('#child2-2');
+    chai.assert.lengthOf($nexts, 1);
+    chai.assert.isTrue($nexts.eq(0).is('#child2-2'));
   });
 });

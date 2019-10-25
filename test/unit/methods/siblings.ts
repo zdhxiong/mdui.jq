@@ -14,12 +14,28 @@ describe('.siblings()', function() {
     `);
   });
 
-  it('.siblings(selector:? string): JQ', function() {
-    // 所有同辈元素
-    const $siblings = $('#child1-2').siblings();
+  it('.siblings()', function() {
+    chai.assert.sameMembers(
+      $('#child1-2')
+        .siblings()
+        .get(),
+      $('#child1-1, #child1-3').get(),
+    );
 
-    chai.assert.lengthOf($siblings, 2);
-    chai.assert.isTrue($siblings.eq(0).is('#child1-1'));
-    chai.assert.isTrue($siblings.eq(1).is('#child1-3'));
+    chai.assert.sameMembers(
+      $('#child1-1, #child1-3')
+        .siblings()
+        .get(),
+      $('.child2').get(),
+    );
+  });
+
+  it('.siblings(selector)', function() {
+    chai.assert.sameMembers(
+      $('#child1-2')
+        .siblings('#child1-3')
+        .get(),
+      $('#child1-3').get(),
+    );
   });
 });

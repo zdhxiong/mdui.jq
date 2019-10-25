@@ -1,14 +1,13 @@
 import $ from '../$';
 import contains from '../functions/contains';
 import { JQ } from '../JQ';
-import JQElement from '../types/JQElement';
 import Selector from '../types/Selector';
-import { isString, isWindow } from '../utils';
+import { isString } from '../utils';
 import './filter';
 import './find';
 
 declare module '../JQ' {
-  interface JQ<T = JQElement> {
+  interface JQ<T = HTMLElement> {
     /**
      * 保留含有指定子元素的元素，去掉不含有指定子元素的元素
      * @param selector
@@ -17,21 +16,17 @@ declare module '../JQ' {
 $('li').has('ul').css('background-color', 'red');
 ```
      */
-    has(selector: Selector | HTMLElement | null): this;
+    has(selector: Selector | Element | null): this;
   }
 }
 
-$.fn.has = function(this: JQ, selector: Selector | HTMLElement | null): JQ {
+$.fn.has = function(this: JQ, selector: Selector | Element | null): JQ {
   const $targets = isString(selector) ? this.find(selector) : $(selector);
   const { length } = $targets;
 
   return this.filter(function() {
-    if (isWindow(this)) {
-      return false;
-    }
-
     for (let i = 0; i < length; i += 1) {
-      if (contains(this, $targets[i] as HTMLElement)) {
+      if (contains(this, $targets[i])) {
         return true;
       }
     }

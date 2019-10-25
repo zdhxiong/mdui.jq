@@ -1,8 +1,7 @@
-import JQElement from '../types/JQElement';
 import './addClass';
 
 declare module '../JQ' {
-  interface JQ<T = JQElement> {
+  interface JQ<T = HTMLElement> {
     /**
      * 移除 CSS 类，多个类名用空格分隔
      * @param className
@@ -24,11 +23,7 @@ $('p').removeClass(function () {
     removeClass(
       className?:
         | string
-        | ((
-            this: HTMLElement,
-            index: number,
-            currentClassName: string,
-          ) => string),
+        | ((this: T, index: number, currentClassName: string) => string),
     ): this;
   }
 }

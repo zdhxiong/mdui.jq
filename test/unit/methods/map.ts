@@ -36,12 +36,12 @@ describe('.map()', function() {
     chai.assert.equal(ret.text(), 'ad');
 
     // 返回 index
-    /* ret = $divs
+    const ret2 = $divs
       .map(function(index) {
-        return index;
+        return [index, index + 1];
       })
       .get()
       .join(',');
-    chai.assert.equal(ret, '0,1,2,3'); */
+    chai.assert.equal(ret2, '0,1,1,2,2,3,3,4');
   });
 });

@@ -1,3 +1,5 @@
+import { isNull, toElement } from '../utils';
+
 /**
  * 检查 container 元素内是否包含 contains 元素
  * @param container 父元素
@@ -9,10 +11,14 @@ contains( document.body, document.documentElement ); // false
 ```
  */
 function contains(
-  container: HTMLElement | HTMLDocument,
-  contains: HTMLElement | HTMLDocument,
+  container: Element | Document | null,
+  contains: Element | Document | null,
 ): boolean {
-  return container !== contains && container.contains(contains);
+  if (isNull(container) || isNull(contains)) {
+    return false;
+  }
+
+  return container !== contains && toElement(container).contains(contains);
 }
 
 export default contains;

@@ -1,11 +1,10 @@
 import $ from '../$';
 import { JQ } from '../JQ';
-import JQElement from '../types/JQElement';
-import { isElement, getComputedStyleValue } from '../utils';
+import { getComputedStyleValue } from '../utils';
 import './each';
 
 declare module '../JQ' {
-  interface JQ<T = JQElement> {
+  interface JQ<T = HTMLElement> {
     /**
      * 显示对象中的所有元素
      * 即将元素的 display 属性恢复到初始值
@@ -51,10 +50,6 @@ function defaultDisplay(nodeName: string): string {
  */
 $.fn.show = function(this: JQ): JQ {
   return this.each(function() {
-    if (!isElement(this)) {
-      return;
-    }
-
     if (this.style.display === 'none') {
       this.style.display = '';
     }

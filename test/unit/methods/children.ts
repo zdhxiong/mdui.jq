@@ -1,4 +1,5 @@
 import $ from '../../jq_or_jquery';
+import { toIdArray } from '../../utils';
 
 describe('.children()', function() {
   beforeEach(function() {
@@ -15,21 +16,19 @@ describe('.children()', function() {
   });
 
   it('.children()', function() {
-    const $childs = $('#child').children();
-
-    chai.assert.lengthOf($childs, 3);
-    chai.assert.isTrue($childs.eq(0).is('#child1'));
-    chai.assert.isTrue($childs.eq(1).is('#child2'));
-    chai.assert.isTrue($childs.eq(2).is('#child3'));
+    const $children = $('#child').children();
+    chai.assert.sameOrderedMembers(toIdArray($children), [
+      'child1',
+      'child2',
+      'child3',
+    ]);
   });
 
   it('.children(selector)', function() {
-    let $childs = $('#child').children('.child');
-    chai.assert.lengthOf($childs, 2);
-    chai.assert.isTrue($childs.eq(0).is('#child2'));
-    chai.assert.isTrue($childs.eq(1).is('#child3'));
+    let $children = $('#child').children('.child');
+    chai.assert.sameOrderedMembers(toIdArray($children), ['child2', 'child3']);
 
-    $childs = $('#child').children('#child2-1');
-    chai.assert.lengthOf($childs, 0);
+    $children = $('#child').children('#child2-1');
+    chai.assert.lengthOf($children, 0);
   });
 });

@@ -1,4 +1,5 @@
 import $ from '../../jq_or_jquery';
+import { toIdArray } from '../../utils';
 
 describe('.first()', function() {
   beforeEach(function() {
@@ -14,12 +15,10 @@ describe('.first()', function() {
   });
 
   it('.first()', function() {
-    chai.assert.isTrue(
-      $('#test li')
-        .first()
-        .is('#child-1'),
-    );
+    let $first = $('#test li').first();
+    chai.assert.sameOrderedMembers(toIdArray($first), ['child-1']);
 
-    chai.assert.lengthOf($('#notfound').first(), 0);
+    $first = $('#notfound').first();
+    chai.assert.lengthOf($first, 0);
   });
 });

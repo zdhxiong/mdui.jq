@@ -10,6 +10,18 @@ describe('$.data, $.removeData', function() {
     const testArrayData = [1, 2, 3, 4];
     const testObjectData = { test1: 'test1', test2: 'test2' };
 
+    // 在 window 上存储数据
+    $.data(window, 'string', 'value');
+    chai.assert.equal($.data(window, 'string'), 'value');
+    $.removeData(window, 'string');
+    chai.assert.isUndefined($.data(window, 'string'));
+
+    // 在 document 上存储数据
+    $.data(document, 'string', 'value2');
+    chai.assert.equal($.data(document, 'string'), 'value2');
+    $.removeData(document, 'string');
+    chai.assert.isUndefined($.data(document, 'string'));
+
     // 存储字符串
     const val = $.data(intro, 'string', 'value');
     chai.assert.equal(val, 'value');

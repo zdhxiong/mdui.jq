@@ -1,4 +1,5 @@
 import $ from '../../jq_or_jquery';
+import { toIdArray } from '../../utils';
 
 describe('.closest()', function() {
   beforeEach(function() {
@@ -16,12 +17,10 @@ describe('.closest()', function() {
   it('.closest(selector)', function() {
     // $().closest(selector)
     let $dom = $('#child4').closest('.child');
-    chai.assert.lengthOf($dom, 1);
-    chai.assert.isTrue($dom.eq(0).is('#child2'));
+    chai.assert.sameOrderedMembers(toIdArray($dom), ['child2']);
 
     // $().closest(selector) 当前元素已匹配
     $dom = $('#child4').closest('#child4');
-    chai.assert.lengthOf($dom, 1);
-    chai.assert.isTrue($dom.eq(0).is('#child4'));
+    chai.assert.sameOrderedMembers(toIdArray($dom), ['child4']);
   });
 });

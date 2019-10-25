@@ -18,7 +18,6 @@ describe('.has()', function() {
     chai.assert.isTrue($children.eq(0).is('#child2'));
 
     chai.assert.lengthOf($('.child').has('.notfound'), 0);
-    chai.assert.lengthOf($(window).has('child'), 0);
   });
 
   it('.has(dom)', function() {
@@ -26,7 +25,5 @@ describe('.has()', function() {
     const $children = $('.child').has(child);
     chai.assert.lengthOf($children, 1);
     chai.assert.isTrue($children.eq(0).is('#child2'));
-
-    chai.assert.lengthOf($(window).has(child), 0);
   });
 });

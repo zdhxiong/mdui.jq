@@ -9,8 +9,5 @@ describe('.hasClass()', function() {
     const $div = $('#test div');
     chai.assert.isTrue($div.hasClass('mdui'));
     chai.assert.isFalse($div.hasClass('test'));
-
-    chai.assert.isFalse($(window).hasClass('test'));
-    chai.assert.isFalse($(document).hasClass('test'));
   });
 });
