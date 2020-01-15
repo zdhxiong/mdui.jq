@@ -7,7 +7,7 @@ declare module '../JQ' {
   interface JQ<T = HTMLElement> {
     /**
      * 触发指定的事件
-     * @param eventName 事件名
+     * @param type 事件名
      * @param extraParameters 传给事件处理函数的额外参数
      * @example ````触发 .box 元素上的 click 事件
 ```js
@@ -19,17 +19,13 @@ $('.box').trigger('click', {key1: 'value1', key2: 'value2'});
 ```
      */
     trigger(
-      eventName: string,
+      type: string,
       extraParameters?: any[] | PlainObject | string | number | boolean,
     ): this;
   }
 }
 
-$.fn.trigger = function(
-  this: JQ,
-  eventName: string,
-  extraParameters: any = {},
-): JQ {
+$.fn.trigger = function(this: JQ, type: string, extraParameters: any): JQ {
   type EventParams = {
     detail?: any;
     bubbles: boolean;
@@ -42,14 +38,14 @@ $.fn.trigger = function(
     cancelable: true,
   };
   const isMouseEvent =
-    ['click', 'mousedown', 'mouseup', 'mousemove'].indexOf(eventName) > -1;
+    ['click', 'mousedown', 'mouseup', 'mousemove'].indexOf(type) > -1;
 
   if (isMouseEvent) {
     // Note: MouseEvent 无法传入 detail 参数
-    event = new MouseEvent(eventName, eventParams);
+    event = new MouseEvent(type, eventParams);
   } else {
     eventParams.detail = extraParameters;
-    event = new CustomEvent(eventName, eventParams);
+    event = new CustomEvent(type, eventParams);
   }
 
   // @ts-ignore
