@@ -73,7 +73,7 @@ declare module '../JQ' {
      * @param eventName 事件名称，多个事件名可以用空格分隔
      * @param callback 事件处理函数
      */
-    one(eventName: string, callback: EventCallback): this;
+    one(eventName: string, callback: EventCallback | false): this;
   }
 }
 

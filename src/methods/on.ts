@@ -135,16 +135,12 @@ $.fn.on = function(
     const _this = this;
     const origCallback: Function = callback;
 
-    types.split(' ').forEach(type => {
-      if (type) {
-        callback = function(this: Element | Document | Window): void {
-          _this.off(type, selector, callback);
+    callback = function(this: Element | Document | Window, event: Event): void {
+      _this.off(event.type, selector, callback);
 
-          // eslint-disable-next-line prefer-rest-params
-          return origCallback.apply(this, arguments);
-        };
-      }
-    });
+      // eslint-disable-next-line prefer-rest-params
+      return origCallback.apply(this, arguments);
+    };
   }
 
   return this.each(function() {

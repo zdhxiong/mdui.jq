@@ -32,8 +32,8 @@ let mduiElementId = 1;
 /**
  * 为元素赋予一个唯一的ID
  */
-function getElementId(element: Element | Document | Window): number {
-  const key = 'mduiEventId';
+function getElementId(element: Element | Document | Window | Function): number {
+  const key = '_mduiEventId';
 
   // @ts-ignore
   if (!element[key]) {
@@ -62,7 +62,7 @@ function getHandlers(
     handler =>
       handler &&
       (!type || handler.type === type) &&
-      (!func || handler.func.toString() === func.toString()) &&
+      (!func || getElementId(handler.func) === getElementId(func)) &&
       (!selector || handler.selector === selector),
   );
 }
