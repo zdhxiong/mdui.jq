@@ -2,6 +2,7 @@ import $ from '../$';
 import PlainObject from '../interfaces/PlainObject';
 import { JQ } from '../JQ';
 import './each';
+import { parse } from './utils/event';
 
 declare module '../JQ' {
   interface JQ<T = HTMLElement> {
@@ -32,26 +33,30 @@ $.fn.trigger = function(this: JQ, type: string, extraParameters: any): JQ {
     cancelable: boolean;
   };
 
-  let event: MouseEvent | CustomEvent;
+  const event = parse(type);
+  let eventObject: MouseEvent | CustomEvent;
   const eventParams: EventParams = {
     bubbles: true,
     cancelable: true,
   };
   const isMouseEvent =
-    ['click', 'mousedown', 'mouseup', 'mousemove'].indexOf(type) > -1;
+    ['click', 'mousedown', 'mouseup', 'mousemove'].indexOf(event.type) > -1;
 
   if (isMouseEvent) {
     // Note: MouseEvent 无法传入 detail 参数
-    event = new MouseEvent(type, eventParams);
+    eventObject = new MouseEvent(event.type, eventParams);
   } else {
     eventParams.detail = extraParameters;
-    event = new CustomEvent(type, eventParams);
+    eventObject = new CustomEvent(event.type, eventParams);
   }
 
   // @ts-ignore
-  event._detail = extraParameters;
+  eventObject._detail = extraParameters;
+
+  // @ts-ignore
+  eventObject._ns = event.ns;
 
   return this.each(function() {
-    this.dispatchEvent(event);
+    this.dispatchEvent(eventObject);
   });
 };

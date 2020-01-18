@@ -8,7 +8,12 @@ declare module '../JQ' {
   interface JQ<T = HTMLElement> {
     /**
      * 通过事件委托同时添加多个事件处理函数，触发一次后自动解绑
-     * @param events 一个对象：键名为事件名，多个事件名用空格分隔；键值为事件处理函数
+     * @param events
+     * 一个对象：
+     *
+     * 键名为事件名，多个事件名用空格分隔，可包含命名空间；
+     *
+     * 键值为事件处理函数
      * @param selector CSS 选择器
      * @param data
      * 事件触发时，传递给事件处理函数的数据
@@ -23,7 +28,12 @@ declare module '../JQ' {
 
     /**
      * 同时添加多个事件处理函数，触发一次后自动解绑
-     * @param events 一个对象：键名为事件名，多个事件名用空格分隔；键值为事件处理函数
+     * @param events
+     * 一个对象：
+     *
+     * 键名为事件名，多个事件名用空格分隔，可包含命名空间；
+     *
+     * 键值为事件处理函数
      * @param data
      * 事件触发时，传递给事件处理函数的数据
      *
@@ -33,7 +43,10 @@ declare module '../JQ' {
 
     /**
      * 通过事件委托添加事件处理函数，并传入参数，触发一次后自动解绑
-     * @param eventName 事件名称，多个事件名可以用空格分隔
+     * @param eventName
+     * 事件名称，多个事件名可以用空格分隔
+     *
+     * 事件名中可以包含命名空间，如 `click.myPlugin`
      * @param selector CSS 选择器
      * @param data
      * 事件触发时，传递给事件处理函数的数据
@@ -50,7 +63,10 @@ declare module '../JQ' {
 
     /**
      * 通过事件委托添加事件处理函数，触发一次后自动解绑
-     * @param eventName 事件名称，多个事件名可以用空格分隔
+     * @param eventName
+     * 事件名称，多个事件名可以用空格分隔
+     *
+     * 事件名中可以包含命名空间，如 `click.myPlugin`
      * @param selector CSS 选择器
      * @param callback 事件处理函数
      */
@@ -62,7 +78,10 @@ declare module '../JQ' {
 
     /**
      * 添加事件处理函数，并传入参数，触发一次后自动解绑
-     * @param eventName 事件名称，多个事件名可以用空格分隔
+     * @param eventName
+     * 事件名称，多个事件名可以用空格分隔
+     *
+     * 事件名中可以包含命名空间，如 `click.myPlugin`
      * @param data 事件触发时，传递给事件处理函数的数据
      * @param callback 事件处理函数
      */
@@ -70,7 +89,10 @@ declare module '../JQ' {
 
     /**
      * 添加事件处理函数，触发一次后自动解绑
-     * @param eventName 事件名称，多个事件名可以用空格分隔
+     * @param eventName
+     * 事件名称，多个事件名可以用空格分隔
+     *
+     * 事件名中可以包含命名空间，如 `click.myPlugin`
      * @param callback 事件处理函数
      */
     one(eventName: string, callback: EventCallback | false): this;

@@ -561,4 +561,105 @@ describe('.on()', function() {
     chai.assert.equal(eventCount, 12);
     $inner.off();
   });
+
+  it('.on(namespace)', function() {
+    const $inner = $('#inner');
+    const $button = $('#button');
+    eventCount = 0;
+
+    $inner.on('click.a.b.c', function() {
+      eventCount += 1;
+    });
+    $inner.on('click.a.b', function() {
+      eventCount += 2;
+    });
+    $inner.on('click.a', function() {
+      eventCount += 4;
+    });
+    $inner.on('click', function() {
+      eventCount += 8;
+    });
+    $inner.on('input.a', function() {
+      eventCount += 16;
+    });
+    $inner.on('click.a', '#button', function() {
+      eventCount += 32;
+    });
+    $inner.on('click', '#button', function() {
+      eventCount += 64;
+    });
+
+    $inner.trigger('click.a.b.c');
+    chai.assert.equal(eventCount, 1);
+    eventCount = 0;
+
+    $inner.trigger('click.a.b');
+    chai.assert.equal(eventCount, 3);
+    eventCount = 0;
+
+    $inner.trigger('click.a');
+    chai.assert.equal(eventCount, 7);
+    eventCount = 0;
+
+    $inner.trigger('click');
+    chai.assert.equal(eventCount, 15);
+    eventCount = 0;
+
+    $inner.trigger('a.b');
+    chai.assert.equal(eventCount, 0);
+
+    $inner.trigger('click.b');
+    chai.assert.equal(eventCount, 3);
+    eventCount = 0;
+
+    $inner.trigger('click.c.b');
+    chai.assert.equal(eventCount, 1);
+    eventCount = 0;
+
+    $inner.trigger('input');
+    chai.assert.equal(eventCount, 16);
+    eventCount = 0;
+
+    $inner.trigger('input.a');
+    chai.assert.equal(eventCount, 16);
+    eventCount = 0;
+
+    $inner.trigger('input.b');
+    chai.assert.equal(eventCount, 0);
+
+    $button.trigger('click.a');
+    chai.assert.equal(eventCount, 39);
+    eventCount = 0;
+
+    $button.trigger('click');
+    chai.assert.equal(eventCount, 111);
+    eventCount = 0;
+
+    $inner.off('c');
+    $inner.trigger('click');
+    chai.assert.equal(eventCount, 15);
+    eventCount = 0;
+
+    $inner.off('click.c');
+    $inner.trigger('click');
+    chai.assert.equal(eventCount, 14);
+    eventCount = 0;
+
+    $inner.off('.b.a');
+    $inner.trigger('click');
+    chai.assert.equal(eventCount, 12);
+    eventCount = 0;
+    $inner.trigger('input');
+    chai.assert.equal(eventCount, 16);
+    eventCount = 0;
+
+    $inner.off('click.a', '#button');
+    $button.trigger('click');
+    chai.assert.equal(eventCount, 76);
+    eventCount = 0;
+
+    $inner.off('click');
+    $inner.trigger('click');
+    chai.assert.equal(eventCount, 0);
+  });
 });

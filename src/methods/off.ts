@@ -10,7 +10,10 @@ declare module '../JQ' {
   interface JQ<T = HTMLElement> {
     /**
      * 解除通过事件委托绑定的指定事件
-     * @param eventName 事件名称，多个事件名可以用空格分隔，如 `click`, `click dbclick`
+     * @param eventName
+     * 事件名称，多个事件名可以用空格分隔，如 `click`, `click dbclick`
+     *
+     * 事件名中可以包含命名空间，或者只包含命名空间，如 `keydown.myPlugin`, `.myPlugin`。
      * @param selector CSS 选择器
      * @param callback 事件处理函数
      * @example
@@ -38,7 +41,10 @@ $(document).off('click dbclick', '.box');
 
     /**
      * 解除绑定的指定事件
-     * @param eventName 事件名称，多个事件名可以用空格分隔，如 `click`, `click dbclick`
+     * @param eventName
+     * 事件名称，多个事件名可以用空格分隔，如 `click`, `click dbclick`
+     *
+     * 事件名中可以包含命名空间，或者只包含命名空间，如 `keydown.myPlugin`, `.myPlugin`。
      * @param callback 事件处理函数
      * @example
 ```js
@@ -61,7 +67,12 @@ $('.box').off('click dbclick');
 
     /**
      * 同时移除多个事件处理函数
-     * @param events 一个对象：键名为事件名，多个事件名用空格分隔；键值为事件处理函数
+     * @param events
+     * 一个对象：
+     *
+     * 键名为事件名，多个事件名用空格分隔，可包含命名空间；
+     *
+     * 键值为事件处理函数
      * @param selector CSS 选择器
      * @example
 ```js

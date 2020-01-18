@@ -12,6 +12,7 @@ type EventCallback = (
 
 type Handler = {
   type: string; // 事件名
+  ns: string; // 命名空间
   func: Function; // 事件处理函数
   id: number; // 事件ID
   proxy: any;
@@ -46,6 +47,28 @@ function getElementId(element: Element | Document | Window | Function): number {
 }
 
 /**
+ * 解析事件名中的命名空间
+ */
+function parse(type: string): { type: string; ns: string } {
+  const parts = type.split('.');
+
+  return {
+    type: parts[0],
+    ns: parts
+      .slice(1)
+      .sort()
+      .join(' '),
+  };
+}
+
+/**
+ * 命名空间匹配规则
+ */
+function matcherFor(ns: string): RegExp {
+  return new RegExp('(?:^| )' + ns.replace(' ', ' .* ?') + '(?: |$)');
+}
+
+/**
  * 获取匹配的事件
  * @param element
  * @param type
@@ -58,10 +81,13 @@ function getHandlers(
   func?: Function,
   selector?: string,
 ): Handler[] {
+  const event = parse(type);
+
   return (handlers[getElementId(element)] || []).filter(
     handler =>
       handler &&
-      (!type || handler.type === type) &&
+      (!event.type || handler.type === event.type) &&
+      (!event.ns || matcherFor(event.ns).test(handler.ns)) &&
       (!func || getElementId(handler.func) === getElementId(func)) &&
       (!selector || handler.selector === selector),
   );
@@ -99,6 +125,8 @@ function add(
       return;
     }
 
+    const event = parse(type);
+
     function callFn(e: Event, elem: Element | Document | Window): void {
       // 因为鼠标事件模拟事件的 detail 属性是只读的，因此在 e._detail 中存储参数
       const result = func.apply(
@@ -114,6 +142,11 @@ function add(
     }
 
     function proxyFn(e: Event): void {
+      // @ts-ignore
+      if (e._ns && !matcherFor(e._ns).test(event.ns)) {
+        return;
+      }
+
       // @ts-ignore
       e._data = data;
 
@@ -138,7 +171,8 @@ function add(
     }
 
     const handler: Handler = {
-      type,
+      type: event.type,
+      ns: event.ns,
       func,
       selector,
       id: handlers[elementId].length,
@@ -146,6 +180,7 @@ function add(
     };
 
     handlers[elementId].push(handler);
+
     element.addEventListener(handler.type, proxyFn, useCapture);
   });
 }
@@ -182,4 +217,4 @@ function remove(
   }
 }
 
-export { EventCallback, add, remove };
+export { EventCallback, parse, add, remove };
