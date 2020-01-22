@@ -6,12 +6,15 @@
   "module": "dist/jq.esm.js",
   "types": "es/index.d.ts",
   "scripts": {
-    "build": "tsc -p src/tsconfig.json && node build.js --build",
-    "test": "node build.js --test"
+    "eslint-src": "eslint --fix src/**/*.ts",
+    "eslint-test": "eslint --fix test/**/*.ts",
+    "eslint": "npm run eslint-src && npm run eslint-test",
+    "test": "npm run eslint-test && node build.js --test",
+    "build": "npm run eslint-src && tsc -p src/tsconfig.json && node build.js --build"
   },
   "husky": {
     "hooks": {
-      "pre-commit": "npm run build"
+      "pre-commit": "npm run eslint-test && npm run build"
     }
   },
   "repository": {

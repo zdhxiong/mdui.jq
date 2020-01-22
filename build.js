@@ -21,9 +21,7 @@ const banner = `
 const input = './src/index.ts';
 
 const plugins = [
-  eslint({
-    fix: true,
-  }),
+  eslint(),
   typescript(tsconfig.compilerOptions),
 ];
 
@@ -97,9 +95,7 @@ async function test() {
       file: './test/dist.js',
     }],
     plugins: [
-      eslint({
-        fix: true,
-      }),
+      eslint(),
       typescript({
         module: "ES6",
         target: "ES6"
