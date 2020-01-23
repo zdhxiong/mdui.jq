@@ -21,7 +21,6 @@ const banner = `
 const input = './src/index.ts';
 
 const plugins = [
-  eslint(),
   typescript(tsconfig.compilerOptions),
 ];
 
@@ -95,7 +94,9 @@ async function test() {
       file: './test/dist.js',
     }],
     plugins: [
-      eslint(),
+      eslint({
+        fix: true,
+      }),
       typescript({
         module: "ES6",
         target: "ES6"
@@ -110,8 +111,8 @@ async function test() {
     watch: {
       clearScreen: true,
       include: [
-        './test/unit/**/*',
-        './src/**/*',
+        './test/unit/**/*.ts',
+        './src/**/*.ts',
       ]
     }
   });
