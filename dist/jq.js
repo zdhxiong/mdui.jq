@@ -1420,7 +1420,7 @@
 
   each(['insertBefore', 'insertAfter'], function (nameIndex, name) {
       $.fn[name] = function (target) {
-          var $element = nameIndex === 1 ? $(this.get().reverse()) : this; // 顺序和 jQuery 保持一致
+          var $element = nameIndex ? $(this.get().reverse()) : this; // 顺序和 jQuery 保持一致
           var result = [];
           $(target).each(function (_, target) {
               if (!target.parentNode) {
@@ -1429,12 +1429,15 @@
               $element.each(function (_, element) {
                   var newItem = element.cloneNode(true);
                   var existingItem = nameIndex ? target.nextSibling : target;
+                  // 通过 .data() 设置的数据需要保留
+                  data(newItem, data(element));
+                  // todo: 事件也需要保留
                   result.push(newItem);
                   target.parentNode.insertBefore(newItem, existingItem);
               });
           });
           $element.remove();
-          return $(nameIndex === 1 ? result.reverse() : result);
+          return $(nameIndex ? result.reverse() : result);
       };
   });
 

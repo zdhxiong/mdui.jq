@@ -1104,7 +1104,7 @@ $.fn.remove = function (selector) {
 
 each(['insertBefore', 'insertAfter'], (nameIndex, name) => {
     $.fn[name] = function (target) {
-        const $element = nameIndex === 1 ? $(this.get().reverse()) : this; // 顺序和 jQuery 保持一致
+        const $element = nameIndex ? $(this.get().reverse()) : this; // 顺序和 jQuery 保持一致
         const result = [];
         $(target).each((_, target) => {
             if (!target.parentNode) {
@@ -1113,12 +1113,15 @@ each(['insertBefore', 'insertAfter'], (nameIndex, name) => {
             $element.each((_, element) => {
                 const newItem = element.cloneNode(true);
                 const existingItem = nameIndex ? target.nextSibling : target;
+                // 通过 .data() 设置的数据需要保留
+                data(newItem, data(element));
+                // todo: 事件也需要保留
                 result.push(newItem);
                 target.parentNode.insertBefore(newItem, existingItem);
             });
         });
         $element.remove();
-        return $(nameIndex === 1 ? result.reverse() : result);
+        return $(nameIndex ? result.reverse() : result);
     };
 });
 
