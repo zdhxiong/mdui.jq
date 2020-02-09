@@ -77,7 +77,7 @@ function isBorderBox(element) {
     return getComputedStyleValue(element, 'box-sizing') === 'border-box';
 }
 /**
- * 获取元素的 padding, border, margin 宽度（两侧宽度的和）
+ * 获取元素的 padding, border, margin 宽度（两侧宽度的和，单位为px）
  * @param element
  * @param direction
  * @param extra
@@ -1654,14 +1654,17 @@ function set(element, elementIndex, name, funcIndex, includeMargin, value) {
     }
     const $element = $(element);
     const dimension = name.toLowerCase();
-    // computedValue 不是数值，且单位不是 px 时，计算以 px 为单位的值
-    if (isNaN(Number(computedValue)) && computedValue.substr(-2) !== 'px') {
+    // 特殊的值，不需要计算 padding、border、margin
+    if (['auto', 'inherit', ''].indexOf(computedValue) > -1) {
         $element.css(dimension, computedValue);
-        computedValue = $element.css(dimension);
+        return;
     }
-    // 去除单位
-    computedValue = parseFloat(computedValue);
-    computedValue = handleExtraWidth(element, name, computedValue, funcIndex, includeMargin, -1);
+    // 其他值保留原始单位。注意：如果不使用 px 作为单位，则算出的值一般是不准确的
+    const suffix = computedValue.toString().replace(/\b[0-9]*/, '');
+    const numerical = parseFloat(computedValue);
+    computedValue =
+        handleExtraWidth(element, name, numerical, funcIndex, includeMargin, -1) +
+            (suffix || 'px');
     $element.css(dimension, computedValue);
 }
 each(['Width', 'Height'], (_, name) => {
