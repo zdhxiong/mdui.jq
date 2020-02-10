@@ -198,7 +198,7 @@ function set(
   }
 
   // 其他值保留原始单位。注意：如果不使用 px 作为单位，则算出的值一般是不准确的
-  const suffix = computedValue.toString().replace(/\b[0-9]*/, '');
+  const suffix = computedValue.toString().replace(/\b[0-9.]*/, '');
   const numerical = parseFloat(computedValue);
 
   computedValue =
