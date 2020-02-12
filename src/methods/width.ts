@@ -8,7 +8,7 @@ import {
   isWindow,
   toElement,
   isBorderBox,
-  getExtraWidth,
+  getExtraWidth, getComputedStyleValue,
 } from '../utils';
 import './css';
 import './each';
@@ -153,8 +153,9 @@ function get(
     );
   }
 
-  const $element = $(element);
-  const value = parseFloat($element.css(name.toLowerCase()) || '0');
+  const value = parseFloat(
+    getComputedStyleValue(element, name.toLowerCase()) || '0',
+  );
 
   return handleExtraWidth(element, name, value, funcIndex, includeMargin, 1);
 }
