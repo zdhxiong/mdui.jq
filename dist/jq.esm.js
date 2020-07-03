@@ -33,6 +33,13 @@ function isElement(target) {
 function isNode(target) {
     return target instanceof Node;
 }
+/**
+ * 是否是 IE 浏览器
+ */
+function isIE() {
+    // @ts-ignore
+    return !!window.document.documentMode;
+}
 function isArrayLike(target) {
     if (isFunction(target) || isWindow(target)) {
         return false;
@@ -59,7 +66,7 @@ function toCamelCase(string) {
  * @param string
  */
 function toKebabCase(string) {
-    return string.replace(/[A-Z]/g, replacer => '-' + replacer.toLowerCase());
+    return string.replace(/[A-Z]/g, (replacer) => '-' + replacer.toLowerCase());
 }
 /**
  * 获取元素的样式值
@@ -327,10 +334,7 @@ function parse(type) {
     const parts = type.split('.');
     return {
         type: parts[0],
-        ns: parts
-            .slice(1)
-            .sort()
-            .join(' '),
+        ns: parts.slice(1).sort().join(' '),
     };
 }
 /**
@@ -348,7 +352,7 @@ function matcherFor(ns) {
  */
 function getHandlers(element, type, func, selector) {
     const event = parse(type);
-    return (handlers[getElementId(element)] || []).filter(handler => handler &&
+    return (handlers[getElementId(element)] || []).filter((handler) => handler &&
         (!event.type || handler.type === event.type) &&
         (!event.ns || matcherFor(event.ns).test(handler.ns)) &&
         (!func || getElementId(handler.func) === getElementId(func)) &&
@@ -372,7 +376,7 @@ function add(element, types, func, data, selector) {
     if (isObjectLike(data) && data.useCapture) {
         useCapture = true;
     }
-    types.split(' ').forEach(type => {
+    types.split(' ').forEach((type) => {
         if (!type) {
             return;
         }
@@ -400,7 +404,7 @@ function add(element, types, func, data, selector) {
                     .find(selector)
                     .get()
                     .reverse()
-                    .forEach(elem => {
+                    .forEach((elem) => {
                     if (elem === e.target ||
                         contains(elem, e.target)) {
                         callFn(e, elem);
@@ -438,12 +442,12 @@ function remove(element, types, func, selector) {
         element.removeEventListener(handler.type, handler.proxy, false);
     };
     if (!types) {
-        handlersInElement.forEach(handler => removeEvent(handler));
+        handlersInElement.forEach((handler) => removeEvent(handler));
     }
     else {
-        types.split(' ').forEach(type => {
+        types.split(' ').forEach((type) => {
             if (type) {
-                getHandlers(element, type, func, selector).forEach(handler => removeEvent(handler));
+                getHandlers(element, type, func, selector).forEach((handler) => removeEvent(handler));
             }
         });
     }
@@ -1005,8 +1009,8 @@ function removeData(element, name) {
     else if (isString(name)) {
         name
             .split(' ')
-            .filter(nameItem => nameItem)
-            .forEach(nameItem => remove(nameItem));
+            .filter((nameItem) => nameItem)
+            .forEach((nameItem) => remove(nameItem));
     }
     else {
         each(name, (_, nameItem) => remove(nameItem));
@@ -1055,7 +1059,7 @@ each(['add', 'remove', 'toggle'], (_, name) => {
                 ? className.call(element, i, element.getAttribute('class') || '')
                 : className)
                 .split(' ')
-                .filter(name => name);
+                .filter((name) => name);
             each(classes, (_, cls) => {
                 element.classList[name](cls);
             });
@@ -1063,64 +1067,24 @@ each(['add', 'remove', 'toggle'], (_, name) => {
     };
 });
 
-$.fn.is = function (selector) {
-    let isMatched = false;
-    if (isFunction(selector)) {
-        this.each((index, element) => {
-            if (selector.call(element, index, element)) {
-                isMatched = true;
-            }
-        });
-        return isMatched;
-    }
-    if (isString(selector)) {
-        this.each((_, element) => {
-            // @ts-ignore
-            const matches = element.matches || element.msMatchesSelector;
-            if (matches.call(element, selector)) {
-                isMatched = true;
-            }
-        });
-        return isMatched;
-    }
-    const $compareWith = $(selector);
-    this.each((_, element) => {
-        $compareWith.each((_, compare) => {
-            if (element === compare) {
-                isMatched = true;
-            }
-        });
-    });
-    return isMatched;
-};
-
-$.fn.remove = function (selector) {
-    return this.each((_, element) => {
-        if (element.parentNode && (!selector || $(element).is(selector))) {
-            element.parentNode.removeChild(element);
-        }
-    });
-};
-
 each(['insertBefore', 'insertAfter'], (nameIndex, name) => {
     $.fn[name] = function (target) {
         const $element = nameIndex ? $(this.get().reverse()) : this; // 顺序和 jQuery 保持一致
+        const $target = $(target);
         const result = [];
-        $(target).each((_, target) => {
+        $target.each((index, target) => {
             if (!target.parentNode) {
                 return;
             }
             $element.each((_, element) => {
-                const newItem = element.cloneNode(true);
+                const newItem = index
+                    ? element.cloneNode(true)
+                    : element;
                 const existingItem = nameIndex ? target.nextSibling : target;
-                // 通过 .data() 设置的数据需要保留
-                data(newItem, data(element));
-                // todo: 事件也需要保留
                 result.push(newItem);
                 target.parentNode.insertBefore(newItem, existingItem);
             });
         });
-        $element.remove();
         return $(nameIndex ? result.reverse() : result);
     };
 });
@@ -1143,7 +1107,16 @@ each(['before', 'after'], (nameIndex, name) => {
                 ? [args[0].call(element, index, element.innerHTML)]
                 : args;
             each(targets, (_, target) => {
-                const $target = $(isPlainText(target) ? getChildNodesArray(target, 'div') : target);
+                let $target;
+                if (isPlainText(target)) {
+                    $target = $(getChildNodesArray(target, 'div'));
+                }
+                else if (index && isElement(target)) {
+                    $target = $(target.cloneNode(true));
+                }
+                else {
+                    $target = $(target);
+                }
                 $target[nameIndex ? 'insertAfter' : 'insertBefore'](element);
             });
         });
@@ -1239,6 +1212,58 @@ each(ajaxEvents, (name, eventName) => {
     };
 });
 
+$.fn.map = function (callback) {
+    return new JQ(map(this, (element, i) => callback.call(element, i, element)));
+};
+
+$.fn.clone = function () {
+    return this.map(function () {
+        return this.cloneNode(true);
+    });
+};
+
+$.fn.is = function (selector) {
+    let isMatched = false;
+    if (isFunction(selector)) {
+        this.each((index, element) => {
+            if (selector.call(element, index, element)) {
+                isMatched = true;
+            }
+        });
+        return isMatched;
+    }
+    if (isString(selector)) {
+        this.each((_, element) => {
+            if (isDocument(element) || isWindow(element)) {
+                return;
+            }
+            // @ts-ignore
+            const matches = element.matches || element.msMatchesSelector;
+            if (matches.call(element, selector)) {
+                isMatched = true;
+            }
+        });
+        return isMatched;
+    }
+    const $compareWith = $(selector);
+    this.each((_, element) => {
+        $compareWith.each((_, compare) => {
+            if (element === compare) {
+                isMatched = true;
+            }
+        });
+    });
+    return isMatched;
+};
+
+$.fn.remove = function (selector) {
+    return this.each((_, element) => {
+        if (element.parentNode && (!selector || $(element).is(selector))) {
+            element.parentNode.removeChild(element);
+        }
+    });
+};
+
 each(['prepend', 'append'], (nameIndex, name) => {
     $.fn[name] = function (...args) {
         return this.each((index, element) => {
@@ -1250,9 +1275,15 @@ each(['prepend', 'append'], (nameIndex, name) => {
             if (!childLength) {
                 element.appendChild(child);
             }
-            const contents = isFunction(args[0])
+            let contents = isFunction(args[0])
                 ? [args[0].call(element, index, element.innerHTML)]
                 : args;
+            // 如果不是字符串，则仅第一个元素使用原始元素，其他的都克隆自第一个元素
+            if (index) {
+                contents = contents.map((content) => {
+                    return isString(content) ? content : $(content).clone();
+                });
+            }
             $(child)[nameIndex ? 'after' : 'before'](...contents);
             if (!childLength) {
                 element.removeChild(child);
@@ -1260,10 +1291,6 @@ each(['prepend', 'append'], (nameIndex, name) => {
         });
     };
 });
-
-$.fn.map = function (callback) {
-    return new JQ(map(this, (element, i) => callback.call(element, i, element)));
-};
 
 each(['appendTo', 'prependTo'], (nameIndex, name) => {
     $.fn[name] = function (target) {
@@ -1363,12 +1390,6 @@ $.fn.children = function (selector) {
         });
     });
     return new JQ(unique(children));
-};
-
-$.fn.clone = function () {
-    return this.map(function () {
-        return this.cloneNode(true);
-    });
 };
 
 $.fn.slice = function (...args) {
@@ -1589,6 +1610,12 @@ function handleExtraWidth(element, name, value, funcIndex, includeMargin, multip
         value += getExtraWidthValue('margin');
     }
     if (isBorderBox(element)) {
+        // IE 为 box-sizing: border-box 时，得到的值不含 border 和 padding，这里先修复
+        // 仅获取时需要处理，multiply === 1 为 get
+        if (isIE() && multiply === 1) {
+            value += getExtraWidthValue('border');
+            value += getExtraWidthValue('padding');
+        }
         if (funcIndex === 0) {
             value -= getExtraWidthValue('border');
         }
@@ -1630,10 +1657,13 @@ function get(element, name, funcIndex, includeMargin) {
     // $(document).width()
     if (isDocument(element)) {
         const doc = toElement(element);
-        return Math.max(element.body[scrollProp], doc[scrollProp], element.body[offsetProp], doc[offsetProp], doc[clientProp]);
+        return Math.max(
+        // @ts-ignore
+        element.body[scrollProp], doc[scrollProp], 
+        // @ts-ignore
+        element.body[offsetProp], doc[offsetProp], doc[clientProp]);
     }
-    const $element = $(element);
-    const value = parseFloat($element.css(name.toLowerCase()) || '0');
+    const value = parseFloat(getComputedStyleValue(element, name.toLowerCase()) || '0');
     return handleExtraWidth(element, name, value, funcIndex, includeMargin, 1);
 }
 /**
@@ -1660,7 +1690,7 @@ function set(element, elementIndex, name, funcIndex, includeMargin, value) {
         return;
     }
     // 其他值保留原始单位。注意：如果不使用 px 作为单位，则算出的值一般是不准确的
-    const suffix = computedValue.toString().replace(/\b[0-9]*/, '');
+    const suffix = computedValue.toString().replace(/\b[0-9.]*/, '');
     const numerical = parseFloat(computedValue);
     computedValue =
         handleExtraWidth(element, name, numerical, funcIndex, includeMargin, -1) +
@@ -1702,7 +1732,7 @@ each(['val', 'html', 'text'], (nameIndex, name) => {
         // text() 获取所有元素的文本
         if (nameIndex === 2) {
             // @ts-ignore
-            return map($elements, element => toElement(element)[propName]).join('');
+            return map($elements, (element) => toElement(element)[propName]).join('');
         }
         // 空集合时，val() 和 html() 返回 undefined
         if (!$elements.length) {
@@ -1712,7 +1742,7 @@ each(['val', 'html', 'text'], (nameIndex, name) => {
         const firstElement = $elements[0];
         // select multiple 返回数组
         if (nameIndex === 0 && $(firstElement).is('select[multiple]')) {
-            return map($(firstElement).find('option:checked'), element => element.value);
+            return map($(firstElement).find('option:checked'), (element) => element.value);
         }
         // @ts-ignore
         return firstElement[propName];
@@ -1746,7 +1776,7 @@ each(['val', 'html', 'text'], (nameIndex, name) => {
             if (nameIndex === 0 && Array.isArray(computedValue)) {
                 // select[multiple]
                 if ($(element).is('select[multiple]')) {
-                    map($(element).find('option'), option => (option.selected =
+                    map($(element).find('option'), (option) => (option.selected =
                         computedValue.indexOf(option.value) >
                             -1));
                 }
@@ -1765,16 +1795,10 @@ each(['val', 'html', 'text'], (nameIndex, name) => {
 
 $.fn.index = function (selector) {
     if (!arguments.length) {
-        return this.eq(0)
-            .parent()
-            .children()
-            .get()
-            .indexOf(this[0]);
+        return this.eq(0).parent().children().get().indexOf(this[0]);
     }
     if (isString(selector)) {
-        return $(selector)
-            .get()
-            .indexOf(this[0]);
+        return $(selector).get().indexOf(this[0]);
     }
     return this.get().indexOf($(selector)[0]);
 };
@@ -1911,7 +1935,7 @@ each(['', 'All', 'Until'], (nameIndex, name) => {
 });
 
 $.fn.removeAttr = function (attributeName) {
-    const names = attributeName.split(' ').filter(name => name);
+    const names = attributeName.split(' ').filter((name) => name);
     return this.each(function () {
         each(names, (_, name) => {
             this.removeAttribute(name);
@@ -1936,12 +1960,22 @@ $.fn.removeProp = function (name) {
 };
 
 $.fn.replaceWith = function (newContent) {
-    return this.before(newContent).remove();
+    this.each((index, element) => {
+        let content = newContent;
+        if (isFunction(content)) {
+            content = content.call(element, index, element.innerHTML);
+        }
+        else if (index && !isString(content)) {
+            content = $(content).clone();
+        }
+        $(element).before(content);
+    });
+    return this.remove();
 };
 
 $.fn.replaceAll = function (target) {
-    return $(target).map((_, element) => {
-        $(element).replaceWith(this);
+    return $(target).map((index, element) => {
+        $(element).replaceWith(index ? this.clone() : this);
         return this.get();
     });
 };
@@ -1967,7 +2001,7 @@ $.fn.serializeArray = function () {
                     element.checked)) {
                 const value = $element.val();
                 const valueArr = Array.isArray(value) ? value : [value];
-                valueArr.forEach(value => {
+                valueArr.forEach((value) => {
                     result.push({
                         name: element.name,
                         value,

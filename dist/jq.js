@@ -9,7 +9,7 @@
   (global = global || self, global.JQ = factory());
 }(this, (function () { 'use strict';
 
-  !function(){try{return new MouseEvent("test")}catch(e){}var e=function(e,t){t=t||{bubbles:!1,cancelable:!1};var n=document.createEvent("MouseEvent");return n.initMouseEvent(e,t.bubbles,t.cancelable,window,0,t.screenX||0,t.screenY||0,t.clientX||0,t.clientY||0,t.ctrlKey||!1,t.altKey||!1,t.shiftKey||!1,t.metaKey||!1,t.button||0,t.relatedTarget||null),n};e.prototype=Event.prototype,window.MouseEvent=e;}();
+  !function(){try{return new MouseEvent("test")}catch(e$1){}var e=function(e,t){t=t||{bubbles:!1,cancelable:!1};var n=document.createEvent("MouseEvent");return n.initMouseEvent(e,t.bubbles,t.cancelable,window,0,t.screenX||0,t.screenY||0,t.clientX||0,t.clientY||0,t.ctrlKey||!1,t.altKey||!1,t.shiftKey||!1,t.metaKey||!1,t.button||0,t.relatedTarget||null),n};e.prototype=Event.prototype,window.MouseEvent=e;}();
 
   !function(){function t(t,e){e=e||{bubbles:!1,cancelable:!1,detail:void 0};var n=document.createEvent("CustomEvent");return n.initCustomEvent(t,e.bubbles,e.cancelable,e.detail),n}"function"!=typeof window.CustomEvent&&(t.prototype=window.Event.prototype,window.CustomEvent=t);}();
 
@@ -337,6 +337,13 @@
   function isNode(target) {
       return target instanceof Node;
   }
+  /**
+   * 是否是 IE 浏览器
+   */
+  function isIE() {
+      // @ts-ignore
+      return !!window.document.documentMode;
+  }
   function isArrayLike(target) {
       if (isFunction(target) || isWindow(target)) {
           return false;
@@ -630,10 +637,7 @@
       var parts = type.split('.');
       return {
           type: parts[0],
-          ns: parts
-              .slice(1)
-              .sort()
-              .join(' '),
+          ns: parts.slice(1).sort().join(' '),
       };
   }
   /**
@@ -1379,64 +1383,24 @@
       };
   });
 
-  $.fn.is = function (selector) {
-      var isMatched = false;
-      if (isFunction(selector)) {
-          this.each(function (index, element) {
-              if (selector.call(element, index, element)) {
-                  isMatched = true;
-              }
-          });
-          return isMatched;
-      }
-      if (isString(selector)) {
-          this.each(function (_, element) {
-              // @ts-ignore
-              var matches = element.matches || element.msMatchesSelector;
-              if (matches.call(element, selector)) {
-                  isMatched = true;
-              }
-          });
-          return isMatched;
-      }
-      var $compareWith = $(selector);
-      this.each(function (_, element) {
-          $compareWith.each(function (_, compare) {
-              if (element === compare) {
-                  isMatched = true;
-              }
-          });
-      });
-      return isMatched;
-  };
-
-  $.fn.remove = function (selector) {
-      return this.each(function (_, element) {
-          if (element.parentNode && (!selector || $(element).is(selector))) {
-              element.parentNode.removeChild(element);
-          }
-      });
-  };
-
   each(['insertBefore', 'insertAfter'], function (nameIndex, name) {
       $.fn[name] = function (target) {
           var $element = nameIndex ? $(this.get().reverse()) : this; // 顺序和 jQuery 保持一致
+          var $target = $(target);
           var result = [];
-          $(target).each(function (_, target) {
+          $target.each(function (index, target) {
               if (!target.parentNode) {
                   return;
               }
               $element.each(function (_, element) {
-                  var newItem = element.cloneNode(true);
+                  var newItem = index
+                      ? element.cloneNode(true)
+                      : element;
                   var existingItem = nameIndex ? target.nextSibling : target;
-                  // 通过 .data() 设置的数据需要保留
-                  data(newItem, data(element));
-                  // todo: 事件也需要保留
                   result.push(newItem);
                   target.parentNode.insertBefore(newItem, existingItem);
               });
           });
-          $element.remove();
           return $(nameIndex ? result.reverse() : result);
       };
   });
@@ -1462,7 +1426,16 @@
                   ? [args[0].call(element, index, element.innerHTML)]
                   : args;
               each(targets, function (_, target) {
-                  var $target = $(isPlainText(target) ? getChildNodesArray(target, 'div') : target);
+                  var $target;
+                  if (isPlainText(target)) {
+                      $target = $(getChildNodesArray(target, 'div'));
+                  }
+                  else if (index && isElement(target)) {
+                      $target = $(target.cloneNode(true));
+                  }
+                  else {
+                      $target = $(target);
+                  }
                   $target[nameIndex ? 'insertAfter' : 'insertBefore'](element);
               });
           });
@@ -1562,6 +1535,58 @@
       };
   });
 
+  $.fn.map = function (callback) {
+      return new JQ(map(this, function (element, i) { return callback.call(element, i, element); }));
+  };
+
+  $.fn.clone = function () {
+      return this.map(function () {
+          return this.cloneNode(true);
+      });
+  };
+
+  $.fn.is = function (selector) {
+      var isMatched = false;
+      if (isFunction(selector)) {
+          this.each(function (index, element) {
+              if (selector.call(element, index, element)) {
+                  isMatched = true;
+              }
+          });
+          return isMatched;
+      }
+      if (isString(selector)) {
+          this.each(function (_, element) {
+              if (isDocument(element) || isWindow(element)) {
+                  return;
+              }
+              // @ts-ignore
+              var matches = element.matches || element.msMatchesSelector;
+              if (matches.call(element, selector)) {
+                  isMatched = true;
+              }
+          });
+          return isMatched;
+      }
+      var $compareWith = $(selector);
+      this.each(function (_, element) {
+          $compareWith.each(function (_, compare) {
+              if (element === compare) {
+                  isMatched = true;
+              }
+          });
+      });
+      return isMatched;
+  };
+
+  $.fn.remove = function (selector) {
+      return this.each(function (_, element) {
+          if (element.parentNode && (!selector || $(element).is(selector))) {
+              element.parentNode.removeChild(element);
+          }
+      });
+  };
+
   each(['prepend', 'append'], function (nameIndex, name) {
       $.fn[name] = function () {
           var args = [], len = arguments.length;
@@ -1581,6 +1606,12 @@
               var contents = isFunction(args[0])
                   ? [args[0].call(element, index, element.innerHTML)]
                   : args;
+              // 如果不是字符串，则仅第一个元素使用原始元素，其他的都克隆自第一个元素
+              if (index) {
+                  contents = contents.map(function (content) {
+                      return isString(content) ? content : $(content).clone();
+                  });
+              }
               (ref = $(child))[nameIndex ? 'after' : 'before'].apply(ref, contents);
               if (!childLength) {
                   element.removeChild(child);
@@ -1588,10 +1619,6 @@
           });
       };
   });
-
-  $.fn.map = function (callback) {
-      return new JQ(map(this, function (element, i) { return callback.call(element, i, element); }));
-  };
 
   each(['appendTo', 'prependTo'], function (nameIndex, name) {
       $.fn[name] = function (target) {
@@ -1693,12 +1720,6 @@
           });
       });
       return new JQ(unique(children));
-  };
-
-  $.fn.clone = function () {
-      return this.map(function () {
-          return this.cloneNode(true);
-      });
   };
 
   $.fn.slice = function () {
@@ -1922,6 +1943,12 @@
           value += getExtraWidthValue('margin');
       }
       if (isBorderBox(element)) {
+          // IE 为 box-sizing: border-box 时，得到的值不含 border 和 padding，这里先修复
+          // 仅获取时需要处理，multiply === 1 为 get
+          if (isIE() && multiply === 1) {
+              value += getExtraWidthValue('border');
+              value += getExtraWidthValue('padding');
+          }
           if (funcIndex === 0) {
               value -= getExtraWidthValue('border');
           }
@@ -1963,10 +1990,13 @@
       // $(document).width()
       if (isDocument(element)) {
           var doc = toElement(element);
-          return Math.max(element.body[scrollProp], doc[scrollProp], element.body[offsetProp], doc[offsetProp], doc[clientProp]);
+          return Math.max(
+          // @ts-ignore
+          element.body[scrollProp], doc[scrollProp], 
+          // @ts-ignore
+          element.body[offsetProp], doc[offsetProp], doc[clientProp]);
       }
-      var $element = $(element);
-      var value = parseFloat($element.css(name.toLowerCase()) || '0');
+      var value = parseFloat(getComputedStyleValue(element, name.toLowerCase()) || '0');
       return handleExtraWidth(element, name, value, funcIndex, includeMargin, 1);
   }
   /**
@@ -1993,7 +2023,7 @@
           return;
       }
       // 其他值保留原始单位。注意：如果不使用 px 作为单位，则算出的值一般是不准确的
-      var suffix = computedValue.toString().replace(/\b[0-9]*/, '');
+      var suffix = computedValue.toString().replace(/\b[0-9.]*/, '');
       var numerical = parseFloat(computedValue);
       computedValue =
           handleExtraWidth(element, name, numerical, funcIndex, includeMargin, -1) +
@@ -2098,16 +2128,10 @@
 
   $.fn.index = function (selector) {
       if (!arguments.length) {
-          return this.eq(0)
-              .parent()
-              .children()
-              .get()
-              .indexOf(this[0]);
+          return this.eq(0).parent().children().get().indexOf(this[0]);
       }
       if (isString(selector)) {
-          return $(selector)
-              .get()
-              .indexOf(this[0]);
+          return $(selector).get().indexOf(this[0]);
       }
       return this.get().indexOf($(selector)[0]);
   };
@@ -2271,14 +2295,24 @@
   };
 
   $.fn.replaceWith = function (newContent) {
-      return this.before(newContent).remove();
+      this.each(function (index, element) {
+          var content = newContent;
+          if (isFunction(content)) {
+              content = content.call(element, index, element.innerHTML);
+          }
+          else if (index && !isString(content)) {
+              content = $(content).clone();
+          }
+          $(element).before(content);
+      });
+      return this.remove();
   };
 
   $.fn.replaceAll = function (target) {
       var this$1 = this;
 
-      return $(target).map(function (_, element) {
-          $(element).replaceWith(this$1);
+      return $(target).map(function (index, element) {
+          $(element).replaceWith(index ? this$1.clone() : this$1);
           return this$1.get();
       });
   };
