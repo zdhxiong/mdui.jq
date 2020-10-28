@@ -1,6 +1,6 @@
 {
   "name": "mdui.jq",
-  "version": "2.0.0",
+  "version": "2.0.1",
   "description": "拥有和 jQuery 相似 API 的轻量级 JavaScript 工具库",
   "main": "dist/jq.js",
   "module": "dist/jq.esm.js",
@@ -40,34 +40,34 @@
   "homepage": "https://github.com/zdhxiong/mdui.jq#readme",
   "dependencies": {
     "mdn-polyfills": "^5.20.0",
-    "promise-polyfill": "^8.1.3"
+    "promise-polyfill": "^8.2.0"
   },
   "devDependencies": {
     "@rollup/plugin-buble": "^0.21.3",
-    "@rollup/plugin-typescript": "^5.0.1",
-    "@types/chai": "^4.2.11",
-    "@types/mocha": "^7.0.2",
-    "@typescript-eslint/eslint-plugin": "^3.5.0",
-    "@typescript-eslint/parser": "^3.5.0",
-    "acorn": "^7.3.1",
+    "@rollup/plugin-typescript": "^6.1.0",
+    "@types/chai": "^4.2.14",
+    "@types/mocha": "^8.0.3",
+    "@typescript-eslint/eslint-plugin": "^4.6.0",
+    "@typescript-eslint/parser": "^4.6.0",
+    "acorn": "^8.0.4",
     "chai": "^4.2.0",
-    "eslint": "^7.3.1",
-    "eslint-config-prettier": "^6.11.0",
-    "eslint-plugin-import": "^2.22.0",
+    "eslint": "^7.12.1",
+    "eslint-config-prettier": "^6.15.0",
+    "eslint-plugin-import": "^2.22.1",
     "eslint-plugin-prettier": "^3.1.4",
-    "husky": "^4.2.5",
+    "husky": "^4.3.0",
     "jquery": "^3.5.1",
-    "mocha": "^8.0.1",
-    "prettier": "^2.0.5",
-    "rollup": "^2.18.2",
+    "mocha": "^8.2.0",
+    "prettier": "^2.1.2",
+    "rollup": "^2.32.1",
     "rollup-plugin-eslint": "^7.0.0",
     "rollup-plugin-polyfill": "^3.0.0",
     "rollup-plugin-uglify": "^6.0.4",
     "spa-server": "^1.0.0",
-    "tslib": "^2.0.0",
-    "typescript": "^3.9.6"
+    "tslib": "^2.0.3",
+    "typescript": "^4.0.5"
   },
   "engines": {
-    "node": ">=12"
+    "node": ">=14"
   }
 }
