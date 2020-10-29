@@ -1,5 +1,5 @@
 /*!
- * mdui.jq 2.0.0 (https://github.com/zdhxiong/mdui.jq#readme)
+ * mdui.jq 2.0.1 (https://github.com/zdhxiong/mdui.jq#readme)
  * Copyright 2018-2020 zdhxiong
  * Licensed under MIT
  */
