@@ -1,6 +1,6 @@
 /*!
  * mdui.jq 2.0.1 (https://github.com/zdhxiong/mdui.jq#readme)
- * Copyright 2018-2020 zdhxiong
+ * Copyright 2018-2021 zdhxiong
  * Licensed under MIT
  */
 function isFunction(target) {
