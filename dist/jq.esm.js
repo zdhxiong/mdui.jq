@@ -1,5 +1,5 @@
 /*!
- * mdui.jq 2.0.1 (https://github.com/zdhxiong/mdui.jq#readme)
+ * mdui.jq 1.0.0 (https://github.com/zdhxiong/search.w3cbus.com#readme)
  * Copyright 2018-2021 zdhxiong
  * Licensed under MIT
  */
@@ -1642,7 +1642,7 @@ function handleExtraWidth(element, name, value, funcIndex, includeMargin, multip
  * @param funcIndex 0: innerWidth, innerHeight; 1: width, height; 2: outerWidth, outerHeight
  * @param includeMargin
  */
-function get(element, name, funcIndex, includeMargin) {
+function get$1(element, name, funcIndex, includeMargin) {
     const clientProp = `client${name}`;
     const scrollProp = `scroll${name}`;
     const offsetProp = `offset${name}`;
@@ -1675,9 +1675,9 @@ function get(element, name, funcIndex, includeMargin) {
  * @param includeMargin
  * @param value
  */
-function set(element, elementIndex, name, funcIndex, includeMargin, value) {
+function set$1(element, elementIndex, name, funcIndex, includeMargin, value) {
     let computedValue = isFunction(value)
-        ? value.call(element, elementIndex, get(element, name, funcIndex, includeMargin))
+        ? value.call(element, elementIndex, get$1(element, name, funcIndex, includeMargin))
         : value;
     if (computedValue == null) {
         return;
@@ -1706,11 +1706,11 @@ each(['Width', 'Height'], (_, name) => {
             // 获取第一个元素的值
             if (!isSet) {
                 return this.length
-                    ? get(this[0], name, funcIndex, includeMargin)
+                    ? get$1(this[0], name, funcIndex, includeMargin)
                     : undefined;
             }
             // 设置每个元素的值
-            return this.each((index, element) => set(element, index, name, funcIndex, includeMargin, margin));
+            return this.each((index, element) => set$1(element, index, name, funcIndex, includeMargin, margin));
         };
     });
 });
@@ -1862,7 +1862,7 @@ $.fn.position = function () {
     };
 };
 
-function get$1(element) {
+function get(element) {
     if (!element.getClientRects().length) {
         return { top: 0, left: 0 };
     }
@@ -1873,13 +1873,13 @@ function get$1(element) {
         left: rect.left + win.pageXOffset,
     };
 }
-function set$1(element, value, index) {
+function set(element, value, index) {
     const $element = $(element);
     const position = $element.css('position');
     if (position === 'static') {
         $element.css('position', 'relative');
     }
-    const currentOffset = get$1(element);
+    const currentOffset = get(element);
     const currentTopString = $element.css('top');
     const currentLeftString = $element.css('left');
     let currentTop;
@@ -1913,11 +1913,11 @@ $.fn.offset = function (value) {
         if (!this.length) {
             return undefined;
         }
-        return get$1(this[0]);
+        return get(this[0]);
     }
     // 设置坐标
     return this.each(function (index) {
-        set$1(this, value, index);
+        set(this, value, index);
     });
 };
 
@@ -2071,4 +2071,3 @@ $.fn.toggle = function () {
 };
 
 export default $;
-//# sourceMappingURL=jq.esm.js.map
