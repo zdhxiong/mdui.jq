@@ -127,16 +127,17 @@ eachArray(['val', 'html', 'text'], (nameIndex, name) => {
           map(
             $(element).find('option'),
             (option) =>
-              ((option as HTMLOptionElement).selected =
-                computedValue.indexOf((option as HTMLOptionElement).value) >
-                -1),
+              ((option as HTMLOptionElement).selected = computedValue.includes(
+                (option as HTMLOptionElement).value,
+              )),
           );
         }
 
         // 其他 checkbox, radio 等元素
         else {
-          (element as HTMLInputElement).checked =
-            computedValue.indexOf((element as HTMLInputElement).value) > -1;
+          (element as HTMLInputElement).checked = computedValue.includes(
+            (element as HTMLInputElement).value,
+          );
         }
       } else {
         set(element, computedValue);

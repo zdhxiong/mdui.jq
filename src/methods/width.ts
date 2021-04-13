@@ -197,7 +197,7 @@ const set = (
   const dimension = name.toLowerCase();
 
   // 特殊的值，不需要计算 padding、border、margin
-  if (['auto', 'inherit', ''].indexOf(computedValue) > -1) {
+  if (['auto', 'inherit', ''].includes(computedValue)) {
     $element.css(dimension, computedValue);
     return;
   }

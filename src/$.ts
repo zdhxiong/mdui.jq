@@ -8,8 +8,8 @@ import {
   isString,
   isArrayLike,
   eachObject,
-  getChildNodesArray,
 } from './shared/core.js';
+import { getChildNodesArray } from './shared/dom.js';
 
 const get$ = (): JQStatic => {
   const $ = function (
@@ -66,7 +66,7 @@ const get$ = (): JQStatic => {
         };
 
         eachObject(tags, (childTag, parentTag) => {
-          if (html.indexOf(`<${childTag}`) === 0) {
+          if (html.startsWith(`<${childTag}`)) {
             toCreate = parentTag;
             return false;
           }

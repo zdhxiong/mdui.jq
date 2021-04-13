@@ -6,9 +6,9 @@ import {
   isFunction,
   isString,
   isElement,
-  getChildNodesArray,
   eachArray,
 } from '../shared/core.js';
+import { getChildNodesArray } from '../shared/dom.js';
 import './each.js';
 import './insertAfter.js';
 import './insertBefore.js';

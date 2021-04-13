@@ -137,7 +137,7 @@ eachArray(['attr', 'prop', 'css'], (nameIndex, name) => {
 
         // @ts-ignore
         element.style[key] = isNumber(value)
-          ? `${value}${cssNumber.indexOf(key) > -1 ? '' : 'px'}`
+          ? `${value}${cssNumber.includes(key) ? '' : 'px'}`
           : value;
         break;
     }
