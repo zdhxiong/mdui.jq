@@ -56,7 +56,7 @@ $.fn.trigger = function (this: JQ, type: string, extraParameters: any): JQ {
   // @ts-ignore
   eventObject._ns = event.ns;
 
-  return this.each(function () {
-    this.dispatchEvent(eventObject);
+  return this.each((_, element) => {
+    element.dispatchEvent(eventObject);
   });
 };

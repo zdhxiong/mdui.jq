@@ -62,9 +62,7 @@ $('<p>Hello</p>').before(function (index, html) {
  * @param target
  */
 const isPlainText = (target: string): boolean => {
-  return (
-    isString(target) && (target[0] !== '<' || target[target.length - 1] !== '>')
-  );
+  return isString(target) && !(target.startsWith('<') && target.endsWith('>'));
 };
 
 eachArray(['before', 'after'], (nameIndex, name) => {

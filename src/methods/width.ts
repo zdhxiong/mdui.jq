@@ -234,9 +234,9 @@ eachArray<typeName>(['Width', 'Height'], (_, name) => {
         }
 
         // 设置每个元素的值
-        return this.each((index, element) =>
-          set(element, index, name, funcIndex, includeMargin, margin),
-        );
+        return this.each((index, element) => {
+          return set(element, index, name, funcIndex, includeMargin, margin);
+        });
       };
     },
   );

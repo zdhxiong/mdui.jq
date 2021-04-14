@@ -53,7 +53,7 @@ const get$ = (): JQStatic => {
       const html = selector.trim();
 
       // 根据 HTML 字符串创建 JQ 对象
-      if (html[0] === '<' && html[html.length - 1] === '>') {
+      if (html.startsWith('<') && html.endsWith('>')) {
         let toCreate = 'div';
 
         const tags = {
